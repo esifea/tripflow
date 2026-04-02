@@ -1,1 +1,289 @@
-<!DOCTYPE html><html><head><title>TripFlow</title></head><body><div id="app"></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripFlow — Plan and share trips with family and friends">
+    <title>TripFlow — Trip Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <a href="/" class="nav-brand">
+            <span class="nav-logo">✈️</span>
+            <span class="nav-title">TripFlow</span>
+        </a>
+        <div class="nav-actions" id="nav-actions">
+            <!-- Dynamic based on page -->
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app">
+
+        <!-- ═══════ LANDING PAGE ═══════ -->
+        <section class="hero page" id="page-landing">
+            <div class="hero-content">
+                <div class="hero-badge">✨ Plan together, travel together</div>
+                <h1 class="hero-title">
+                    Plan Your Next
+                    <span class="gradient-text">Adventure</span>
+                    Together
+                </h1>
+                <p class="hero-subtitle">
+                    Create trip itineraries, share with family & friends, 
+                    and collaborate on the perfect travel plan — all in one place.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" id="hero-cta">
+                        Start Planning
+                        <span class="btn-icon">→</span>
+                    </button>
+                    <button class="btn btn-ghost btn-lg" id="hero-demo">
+                        See How It Works
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-icon">🗺️</span>
+                        <div class="stat-info">
+                            <span class="stat-value">Easy</span>
+                            <span class="stat-label">Trip Planning</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-icon">👨‍👩‍👧‍👦</span>
+                        <div class="stat-info">
+                            <span class="stat-value">Share</span>
+                            <span class="stat-label">With Family</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-icon">📅</span>
+                        <div class="stat-info">
+                            <span class="stat-value">Day-by-Day</span>
+                            <span class="stat-label">Itineraries</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="trip-card-preview">
+                    <div class="trip-card-header">
+                        <div>
+                            <h3>Summer Vacation 2026</h3>
+                            <p>Jeju Island, Korea</p>
+                        </div>
+                    </div>
+                    <div class="trip-card-dates">
+                        <span>Jul 15 — Jul 22</span>
+                        <span class="trip-card-days">8 days</span>
+                    </div>
+                    <div class="trip-card-members">
+                        <div class="avatar" style="--hue: 200">SP</div>
+                        <div class="avatar" style="--hue: 340">JK</div>
+                        <div class="avatar" style="--hue: 120">MH</div>
+                        <div class="avatar avatar-more">+2</div>
+                    </div>
+                    <div class="trip-card-timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-time">09:00</span>
+                            <span class="timeline-dot"></span>
+                            <span class="timeline-event">🛫 Arrive at Jeju Airport</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-time">11:00</span>
+                            <span class="timeline-dot"></span>
+                            <span class="timeline-event">🏨 Check-in at Hotel</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-time">14:00</span>
+                            <span class="timeline-dot"></span>
+                            <span class="timeline-event">🍊 Visit Tangerine Farm</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-time">18:00</span>
+                            <span class="timeline-dot"></span>
+                            <span class="timeline-event">🍽️ Dinner — Black Pork BBQ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section (part of landing page) -->
+        <section class="features page" id="features">
+            <h2 class="section-title">Everything you need to plan <span class="gradient-text">the perfect trip</span></h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Itinerary Builder</h3>
+                    <p>Build day-by-day schedules with time slots, locations, and notes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Share Instantly</h3>
+                    <p>Invite family with a simple link — no app download required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Collaborate</h3>
+                    <p>Everyone can add events, suggest places, and vote on activities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3>Pin Locations</h3>
+                    <p>Attach restaurants, hotels, and attractions to your schedule.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>Task Assignment</h3>
+                    <p>Divide responsibilities — "Who books the hotel?"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Ready</h3>
+                    <p>Works perfectly on phones, tablets, and desktops.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ TRIP EDITOR PAGE ═══════ -->
+        <section class="page" id="page-trip" style="display:none">
+            <!-- Trip Header -->
+            <div class="trip-editor">
+                <div class="trip-header">
+                    <div class="trip-header-left">
+                        <!-- Emoji display removed -->
+                        <div class="trip-header-info">
+                            <input type="text" class="input-inline input-title" id="trip-name" placeholder="Trip Name" value="Untitled Trip">
+                            <input type="text" class="input-inline input-subtitle" id="trip-destination" placeholder="Where are you going?">
+                        </div>
+                    </div>
+                    <div class="trip-header-right">
+                        <button class="btn btn-ghost btn-sm" id="btn-share-trip" title="Copy share link">
+                            🔗 Share Link
+                        </button>
+                        <button class="btn btn-ghost btn-sm btn-danger" id="btn-delete-trip" title="Delete this trip">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="trip-dates-bar">
+                    <div class="date-input-group">
+                        <label>Start</label>
+                        <input type="date" class="input-date" id="trip-start-date">
+                    </div>
+                    <span class="date-separator">→</span>
+                    <div class="date-input-group">
+                        <label>End</label>
+                        <input type="date" class="input-date" id="trip-end-date">
+                    </div>
+                    <div class="trip-duration" id="trip-duration"></div>
+                </div>
+
+                <!-- Day Tabs -->
+                <div class="day-tabs-wrapper">
+                    <div class="day-tabs" id="day-tabs">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Events Timeline -->
+                <div class="events-container" id="events-container">
+                    <div class="events-empty" id="events-empty">
+                        <span class="empty-icon">📋</span>
+                        <p>No events for this day yet</p>
+                        <p class="empty-hint">Click the button below to add your first event</p>
+                    </div>
+                    <div class="events-list" id="events-list">
+                        <!-- Generated by JS -->
+                    </div>
+                    <button class="btn btn-add-event" id="btn-add-event">
+                        <span>+</span> Add Event
+                    </button>
+                </div>
+            </div>
+
+            <!-- Event Edit Modal -->
+            <div class="modal-overlay" id="event-modal" style="display:none">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 id="modal-title">Add Event</h3>
+                        <button class="modal-close" id="modal-close">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group" style="flex:1">
+                                <label>Title</label>
+                                <input type="text" class="input" id="event-title" placeholder="What's happening?">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Start Time</label>
+                                <input type="time" class="input" id="event-start-time">
+                            </div>
+                            <div class="form-group">
+                                <label>End Time</label>
+                                <input type="time" class="input" id="event-end-time">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" class="input" id="event-location" placeholder="Where? (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <textarea class="input textarea" id="event-description" placeholder="Any details? (optional)" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+                        <button class="btn btn-primary" id="modal-save">Save Event</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ LOADING STATE ═══════ -->
+        <section class="page page-loading" id="page-loading" style="display:none">
+            <div class="loader">
+                <div class="loader-spinner"></div>
+                <p>Loading your trip...</p>
+            </div>
+        </section>
+
+        <!-- ═══════ NOT FOUND ═══════ -->
+        <section class="page page-notfound" id="page-notfound" style="display:none">
+            <div class="notfound">
+                <span class="notfound-icon">🔍</span>
+                <h2>Trip not found</h2>
+                <p>This link may be invalid or the trip may have been deleted.</p>
+                <a href="/" class="btn btn-primary">Go Home</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="footer-content">
+            <span class="footer-brand">✈️ TripFlow</span>
+            <span class="footer-text">Plan together, travel together.</span>
+        </div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
