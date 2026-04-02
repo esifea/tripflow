@@ -49,6 +49,9 @@ func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 	if req.Name == "" {
 		req.Name = "Untitled Trip"
 	}
+	if req.StartDate == "" {
+		req.StartDate = time.Now().Format("2006-01-02")
+	}
 
 	result, err := db.Exec(
 		`INSERT INTO trips (token, name, destination, start_date, end_date) VALUES (?, ?, ?, ?, ?)`,
