@@ -58,16 +58,16 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// ── API routes ──
+	// API routes
 	mux.HandleFunc("/api/health", handleHealth)
 	mux.HandleFunc("/api/trips", handleTripRouter)
 	mux.HandleFunc("/api/trips/", handleTripRouter)
 
-	// ── Static files ──
+	// Static files
 	staticFS := http.FileServer(http.Dir(staticDir))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticFS))
 
-	// ── SPA fallback ──
+	// SPA fallback
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
@@ -122,7 +122,6 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"status":"ok","time":"%s"}`, time.Now().Format(time.RFC3339))
 }
 
-// logMiddleware logs every request
 func logMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

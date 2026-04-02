@@ -76,7 +76,6 @@ func runMigrations() error {
 	return nil
 }
 
-// logHistory records a change event for a trip
 func logHistory(tripID int64, action string, detail string) {
 	_, err := db.Exec(
 		`INSERT INTO history (trip_id, action, detail) VALUES (?, ?, ?)`,

@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// generateToken creates a URL-safe random token
 func generateToken() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -19,19 +18,16 @@ func generateToken() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-// writeJSON writes a JSON response
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError writes a JSON error response
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]string{"error": message})
 }
 
-// handleCreateTrip creates a new trip and returns the unique token
 func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -40,7 +36,6 @@ func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		// Allow empty body — create with defaults
 		req = CreateTripRequest{}
 	}
 
@@ -51,7 +46,6 @@ func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Defaults
 	if req.Name == "" {
 		req.Name = "Untitled Trip"
 	}
@@ -83,7 +77,6 @@ func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, trip)
 }
 
-// handleGetTrip returns a trip with all its events
 func handleGetTrip(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -96,9 +89,8 @@ func handleGetTrip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Don't match sub-paths like /api/trips/TOKEN/events
 	if strings.Contains(token, "/") {
-		return // Let other handlers deal with it
+		return
 	}
 
 	trip, err := getTripByToken(token)
@@ -116,7 +108,6 @@ func handleGetTrip(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, TripWithEvents{Trip: trip, Events: events})
 }
 
-// handleUpdateTrip updates the trip metadata
 func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -162,7 +153,6 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, updated)
 }
 
-// handleDeleteTrip deletes a trip and all its events
 func handleDeleteTrip(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -191,11 +181,11 @@ func handleDeleteTrip(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
-// handleTripRouter routes /api/trips/* based on method and path
+// /api/trips/*
 func handleTripRouter(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
-	// POST /api/trips — create
+	// POST /api/trips: create
 	if path == "/api/trips" || path == "/api/trips/" {
 		handleCreateTrip(w, r)
 		return
@@ -220,7 +210,7 @@ func handleTripRouter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ── DB helpers ──
+//--- DB helpers ---//
 
 func getTripByToken(token string) (Trip, error) {
 	var t Trip

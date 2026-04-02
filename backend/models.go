@@ -2,7 +2,7 @@ package main
 
 import "time"
 
-// Trip represents a travel plan accessible via unique token
+// Travel plan
 type Trip struct {
 	ID          int64     `json:"id"`
 	Token       string    `json:"token"`
@@ -14,7 +14,7 @@ type Trip struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Event represents a scheduled item within a trip
+// Scheduled item within a trip
 type Event struct {
 	ID          int64     `json:"id"`
 	TripID      int64     `json:"trip_id"`
@@ -28,13 +28,10 @@ type Event struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// TripWithEvents is the full trip payload sent to the frontend
 type TripWithEvents struct {
 	Trip   Trip    `json:"trip"`
 	Events []Event `json:"events"`
 }
-
-// Request types for JSON decoding
 
 type CreateTripRequest struct {
 	Name        string `json:"name"`

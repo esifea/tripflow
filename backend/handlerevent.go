@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-// handleEventRouter routes /api/trips/{token}/events/*
+// /api/trips/{token}/events/*
 func handleEventRouter(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	// Extract token and event ID from path
-	// Pattern: /api/trips/{token}/events or /api/trips/{token}/events/{id}
+	// /api/trips/{token}/events or /api/trips/{token}/events/{id}
 	token := extractToken(path, "/api/trips/")
 	eventsPath := fmt.Sprintf("/api/trips/%s/events", token)
 
@@ -186,7 +186,7 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request, token string, eve
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
-// ── DB helpers ──
+//--- DB helpers ---//
 
 func getEventsByTripID(tripID int64) ([]Event, error) {
 	rows, err := db.Query(
