@@ -25,29 +25,14 @@ func main() {
 		port = defaultPort
 	}
 
-	// Try to resolve static dir dynamically (if we run from backend/ vs root)
 	staticDir := os.Getenv("STATIC_DIR")
 	if staticDir == "" {
 		staticDir = defaultStaticDir
-		if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-			if _, err := os.Stat("../" + staticDir); err == nil {
-				staticDir = "../" + staticDir
-			}
-		}
 	}
 
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
 		dbPath = defaultDBPath
-		// If running from backend/ but db is in root
-		if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-			if _, err := os.Stat("../" + dbPath); err == nil {
-				dbPath = "../" + dbPath
-			} else if staticDir == "../static" || staticDir == ".././static" {
-				// If we resolved static to parent, default DB to parent too
-				dbPath = "../" + dbPath
-			}
-		}
 	}
 
 	// Initialize database
