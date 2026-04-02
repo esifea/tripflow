@@ -73,7 +73,7 @@ func handleCreateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("[INFO] Trip created: %s (token: %s)", trip.Name, trip.Token)
-	logHistory(trip.ID, "create_trip", "Created new trip")
+	logHistory(trip.ID, "create_trip", "Created new trip", nil)
 	writeJSON(w, http.StatusCreated, trip)
 }
 
@@ -133,8 +133,14 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Keep existing values if not provided
+	prevTrip, err := getTripByToken(token)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "trip not found")
+		return
+	}
+
 	if req.Name == "" {
-		req.Name = trip.Name
+		req.Name = prevTrip.Name
 	}
 
 	_, err = db.Exec(
@@ -147,9 +153,8 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return updated trip
 	updated, _ := getTripByToken(token)
-	logHistory(trip.ID, "update_trip", "Updated trip metadata")
+	logHistory(trip.ID, "update_trip", "Updated trip metadata", prevTrip)
 	writeJSON(w, http.StatusOK, updated)
 }
 
@@ -194,6 +199,12 @@ func handleTripRouter(w http.ResponseWriter, r *http.Request) {
 	// Check if this is an events sub-route
 	if strings.Contains(path, "/events") {
 		handleEventRouter(w, r)
+		return
+	}
+
+	// Check if this is a history sub-route
+	if strings.Contains(path, "/history") {
+		handleHistoryRouter(w, r)
 		return
 	}
 

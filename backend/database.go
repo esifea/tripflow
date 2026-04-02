@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 
 	_ "modernc.org/sqlite"
@@ -57,12 +58,19 @@ func runMigrations() error {
 			trip_id INTEGER NOT NULL,
 			action TEXT NOT NULL,
 			detail TEXT DEFAULT '',
+			snapshot_data TEXT DEFAULT '',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_trips_token ON trips(token)`,
 		`CREATE INDEX IF NOT EXISTS idx_events_trip_id ON events(trip_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_history_trip_id ON history(trip_id)`,
+	}
+
+	// ALTER TABLE migrations - errors ignored because SQLite has no ADD COLUMN IF NOT EXISTS
+	alterMigrations := []string{
+		`ALTER TABLE trips ADD COLUMN destination TEXT DEFAULT ''`,
+		`ALTER TABLE events ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0`,
 	}
 
 	for _, m := range migrations {
@@ -72,14 +80,28 @@ func runMigrations() error {
 		}
 	}
 
+	for _, m := range alterMigrations {
+		if _, err := db.Exec(m); err != nil {
+			// Ignore "duplicate column" - column already exists from a prior run
+			log.Printf("[INFO] ALTER TABLE skipped (column exists): %v", err)
+		}
+	}
+
 	log.Println("[INFO] Database migrations completed")
 	return nil
 }
 
-func logHistory(tripID int64, action string, detail string) {
+func logHistory(tripID int64, action string, detail string, snapshot interface{}) {
+	var snapshotStr string
+	if snapshot != nil {
+		if b, err := json.Marshal(snapshot); err == nil {
+			snapshotStr = string(b)
+		}
+	}
+
 	_, err := db.Exec(
-		`INSERT INTO history (trip_id, action, detail) VALUES (?, ?, ?)`,
-		tripID, action, detail,
+		`INSERT INTO history (trip_id, action, detail, snapshot_data) VALUES (?, ?, ?, ?)`,
+		tripID, action, detail, snapshotStr,
 	)
 	if err != nil {
 		log.Printf("[WARN] Failed to log history: %v", err)

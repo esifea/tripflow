@@ -1156,6 +1156,77 @@ a.nav-brand {
   }
 }
 
+/* ━━━ HISTORY MODAL ━━━ */
+.history-sidebar {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.history-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
+.history-empty {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  padding: 8px 0;
+}
+
+.history-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.history-action {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.history-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.history-detail {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.history-recover-btn {
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.history-recover-btn:hover {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  background: rgba(99,102,241,0.06);
+}
+
 /* ━━━ TOAST ━━━ */
 .toast {
   position: fixed;

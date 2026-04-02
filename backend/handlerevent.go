@@ -118,7 +118,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request, token string) {
 		SortOrder:   req.SortOrder,
 	}
 
-	logHistory(trip.ID, "create_event", fmt.Sprintf("Added event: %s", req.Title))
+	logHistory(trip.ID, "add_event", "Added event: "+req.Title, event)
 	writeJSON(w, http.StatusCreated, event)
 }
 
@@ -140,6 +140,14 @@ func handleUpdateEvent(w http.ResponseWriter, r *http.Request, token string, eve
 		return
 	}
 
+	var prevEvent Event
+	err = db.QueryRow(`SELECT id, trip_id, day_number, start_time, end_time, title, description, location, sort_order, created_at FROM events WHERE id=? AND trip_id=?`, eventID, trip.ID).
+		Scan(&prevEvent.ID, &prevEvent.TripID, &prevEvent.DayNumber, &prevEvent.StartTime, &prevEvent.EndTime, &prevEvent.Title, &prevEvent.Description, &prevEvent.Location, &prevEvent.SortOrder, &prevEvent.CreatedAt)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "event not found")
+		return
+	}
+
 	result, err := db.Exec(
 		`UPDATE events SET day_number=?, start_time=?, end_time=?, title=?, description=?, location=?, sort_order=?
 		 WHERE id=? AND trip_id=?`,
@@ -158,7 +166,7 @@ func handleUpdateEvent(w http.ResponseWriter, r *http.Request, token string, eve
 		return
 	}
 
-	logHistory(trip.ID, "update_event", fmt.Sprintf("Updated event: %s", req.Title))
+	logHistory(trip.ID, "update_event", "Updated event: "+req.Title, prevEvent)
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
@@ -166,6 +174,14 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request, token string, eve
 	trip, err := getTripByToken(token)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "trip not found")
+		return
+	}
+
+	var prevEvent Event
+	err = db.QueryRow(`SELECT id, trip_id, day_number, start_time, end_time, title, description, location, sort_order, created_at FROM events WHERE id=? AND trip_id=?`, eventID, trip.ID).
+		Scan(&prevEvent.ID, &prevEvent.TripID, &prevEvent.DayNumber, &prevEvent.StartTime, &prevEvent.EndTime, &prevEvent.Title, &prevEvent.Description, &prevEvent.Location, &prevEvent.SortOrder, &prevEvent.CreatedAt)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "event not found")
 		return
 	}
 
@@ -182,7 +198,7 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request, token string, eve
 		return
 	}
 
-	logHistory(trip.ID, "delete_event", fmt.Sprintf("Deleted event ID: %d", eventID))
+	logHistory(trip.ID, "delete_event", fmt.Sprintf("Deleted event ID: %d", eventID), prevEvent)
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 

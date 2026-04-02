@@ -66,3 +66,16 @@ type UpdateEventRequest struct {
 	Location    string `json:"location"`
 	SortOrder   int    `json:"sort_order"`
 }
+
+type History struct {
+	ID        int64     `json:"id"`
+	TripID    int64     `json:"trip_id"`
+	Action    string    `json:"action"`
+	Detail    string    `json:"detail"`
+	Snapshot  string    `json:"snapshot_data"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type HistoryResponse struct {
+	History []History `json:"history"`
+}

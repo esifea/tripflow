@@ -351,7 +351,80 @@
     }
   }
 
-  // ── Share ──
+  // ── History ──
+  async function openHistory() {
+    document.getElementById('history-modal').style.display = 'flex';
+    document.getElementById('history-list').innerHTML = '<div class="history-empty">Loading history...</div>';
+    try {
+      const data = await api('GET', `/api/trips/${currentTrip.token}/history`);
+      renderHistory(data.history || []);
+    } catch (e) {
+      document.getElementById('history-list').innerHTML = '<div class="history-empty">Failed to load history</div>';
+    }
+  }
+
+  function closeHistory() {
+    document.getElementById('history-modal').style.display = 'none';
+  }
+
+  function renderHistory(logs) {
+    const list = document.getElementById('history-list');
+    if (logs.length === 0) {
+      list.innerHTML = '<div class="history-empty">No edit history yet.</div>';
+      return;
+    }
+
+    list.innerHTML = logs.map(log => {
+      const time = new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+      // Only show Recover button if snapshot exists
+      const canRecover = log.snapshot_data && log.snapshot_data.length > 2; // more than "{}"
+      
+      const actionMap = {
+        'create_trip': 'Start Trip',
+        'update_trip': 'Edit Trip',
+        'add_event': 'Add Event',
+        'update_event': 'Edit Event',
+        'delete_event': 'Delete Event',
+        'recover': 'Recover'
+      };
+      const displayAction = actionMap[log.action] || log.action;
+
+      return `
+        <div class="history-item">
+          <div class="history-header">
+            <span class="history-action">${displayAction}</span>
+            <span class="history-time">${time}</span>
+          </div>
+          <div class="history-detail">${escapeHtml(log.detail)}</div>
+          ${canRecover ? `<button class="history-recover-btn" data-id="${log.id}">↩ Undo / Recover</button>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Attach listeners
+    list.querySelectorAll('.history-recover-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.getAttribute('data-id');
+        if (!confirm('Are you sure you want to revert to this previous state? This will overwrite the current data.')) return;
+        try {
+          await api('POST', `/api/trips/${currentTrip.token}/history/${id}/recover`);
+          showToast('Successfully recovered previous data!');
+          closeHistory();
+          // Reload trip data while preserving the current day tab
+          const savedDay = currentDay;
+          const data = await api('GET', `/api/trips/${currentTrip.token}`);
+          currentTrip = data.trip;
+          currentEvents = data.events || [];
+          currentDay = savedDay;
+          renderTripEditor();
+        } catch (err) {
+          showToast('Failed to recover: ' + err.message, true);
+        }
+      });
+    });
+  }
+
+  // ── Toast ──
   function shareTrip() {
     if (!currentTrip) return;
     const url = window.location.origin + '/plan/' + currentTrip.token;
@@ -465,8 +538,7 @@
     // Trip editor inputs — auto save
     ['trip-name', 'trip-destination', 'trip-start-date', 'trip-end-date'].forEach((id) => {
       const el = document.getElementById(id);
-      el.addEventListener('input', scheduleSave);
-      el.addEventListener('change', scheduleSave);
+      el.addEventListener('change', scheduleSave); // trigger only on blur to avoid history spam
     });
 
     // Trip buttons
@@ -478,9 +550,15 @@
     document.getElementById('modal-close').addEventListener('click', closeModal);
     document.getElementById('modal-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-save').addEventListener('click', saveEvent);
-    document.getElementById('trip-name').addEventListener('input', scheduleSave);
     document.getElementById('event-modal').addEventListener('click', (e) => {
       if (e.target.id === 'event-modal') closeModal();
+    });
+
+    // History
+    document.getElementById('btn-history-trip').addEventListener('click', openHistory);
+    document.getElementById('history-modal-close').addEventListener('click', closeHistory);
+    document.getElementById('history-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'history-modal') closeHistory();
     });
 
     // Keyboard shortcut: Escape to close modal
