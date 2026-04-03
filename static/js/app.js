@@ -5,6 +5,8 @@
 (function () {
   'use strict';
 
+  var t = window.i18n.t;
+
   // ── State ──
   let currentTrip = null;
   let currentEvents = [];
@@ -67,7 +69,7 @@
     const navActions = document.getElementById('nav-actions');
     if (name === 'landing') {
       navActions.innerHTML = `
-        <button class="btn btn-primary btn-sm" id="nav-new-trip">+ New Trip</button>
+        <button class="btn btn-primary btn-sm" id="nav-new-trip">${t('nav.newTrip')}</button>
       `;
       document.getElementById('nav-new-trip').addEventListener('click', createNewTrip);
     } else if (name === 'trip') {
@@ -104,9 +106,9 @@
       currentDay = 1;
       renderTripEditor();
       showPage('trip');
-      showToast('Trip created! Share the link with your family 🎉');
+      showToast(t('toast.tripCreated'));
     } catch (e) {
-      showToast('Failed to create trip', true);
+      showToast(t('toast.tripCreateFailed'), true);
     }
   }
 
@@ -156,7 +158,7 @@
     if (start && end) {
       const days = Math.ceil((new Date(end) - new Date(start)) / 86400000) + 1;
       if (days > 0) {
-        el.textContent = `${days} day${days > 1 ? 's' : ''}`;
+        el.textContent = t(days > 1 ? 'trip.duration' : 'trip.durationSingular', { n: days });
         el.style.display = '';
       } else {
         el.textContent = '';
@@ -181,7 +183,7 @@
 
     if (totalDays <= 0) {
       // No dates set — show single "All Events" tab
-      container.innerHTML = `<button class="day-tab active" data-day="1">All Events</button>`;
+      container.innerHTML = `<button class="day-tab active" data-day="1">${t('trip.allEvents')}</button>`;
       currentDay = 1;
       container.querySelector('.day-tab').addEventListener('click', () => {
         currentDay = 1;
@@ -194,10 +196,10 @@
     for (let d = 1; d <= totalDays; d++) {
       const date = new Date(start);
       date.setDate(date.getDate() + d - 1);
-      const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const label = date.toLocaleDateString(window.i18n.getDateLocale(), { month: 'short', day: 'numeric' });
       const eventCount = currentEvents.filter((e) => e.day_number === d).length;
       html += `<button class="day-tab ${d === currentDay ? 'active' : ''}" data-day="${d}">
-        <span class="day-tab-label">Day ${d}</span>
+        <span class="day-tab-label">${t('trip.dayLabel', { n: d })}</span>
         <span class="day-tab-date">${label}</span>
         ${eventCount > 0 ? `<span class="day-tab-badge">${eventCount}</span>` : ''}
       </button>`;
@@ -283,7 +285,7 @@
   // ── Event modal ──
   function openAddEvent() {
     editingEventId = null;
-    document.getElementById('modal-title').textContent = 'Add Event';
+    document.getElementById('modal-title').textContent = t('event.addTitle');
     document.getElementById('event-title').value = '';
     document.getElementById('event-start-time').value = '';
     document.getElementById('event-end-time').value = '';
@@ -298,7 +300,7 @@
     if (!ev) return;
 
     editingEventId = id;
-    document.getElementById('modal-title').textContent = 'Edit Event';
+    document.getElementById('modal-title').textContent = t('event.editTitle');
     document.getElementById('event-title').value = ev.title;
     document.getElementById('event-start-time').value = ev.start_time || '';
     document.getElementById('event-end-time').value = ev.end_time || '';
@@ -316,7 +318,7 @@
   async function saveEvent() {
     const title = document.getElementById('event-title').value.trim();
     if (!title) {
-      showToast('Please enter an event title', true);
+      showToast(t('toast.titleRequired'), true);
       return;
     }
 
@@ -336,42 +338,42 @@
         if (idx >= 0) {
           currentEvents[idx] = { ...currentEvents[idx], ...payload };
         }
-        showToast('Event updated ✏️');
+        showToast(t('toast.eventUpdated'));
       } else {
         const created = await api('POST', `/api/trips/${currentTrip.token}/events`, payload);
         currentEvents.push(created);
-        showToast('Event added 🎉');
+        showToast(t('toast.eventAdded'));
       }
       closeModal();
       renderEvents();
       renderDayTabs();
     } catch (e) {
-      showToast('Failed to save event: ' + e.message, true);
+      showToast(t('toast.eventSaveFailed') + e.message, true);
     }
   }
 
   async function deleteEvent(id) {
-    if (!confirm('Delete this event?')) return;
+    if (!confirm(t('confirm.deleteEvent'))) return;
     try {
       await api('DELETE', `/api/trips/${currentTrip.token}/events/${id}`);
       currentEvents = currentEvents.filter((e) => e.id !== id);
       renderEvents();
       renderDayTabs();
-      showToast('Event deleted');
+      showToast(t('toast.eventDeleted'));
     } catch (e) {
-      showToast('Failed to delete event', true);
+      showToast(t('toast.eventDeleteFailed'), true);
     }
   }
 
   // ── History ──
   async function openHistory() {
     document.getElementById('history-modal').style.display = 'flex';
-    document.getElementById('history-list').innerHTML = '<div class="history-empty">Loading history...</div>';
+    document.getElementById('history-list').innerHTML = '<div class="history-empty">' + t('historyModal.loading') + '</div>';
     try {
       const data = await api('GET', `/api/trips/${currentTrip.token}/history`);
       renderHistory(data.history || []);
     } catch (e) {
-      document.getElementById('history-list').innerHTML = '<div class="history-empty">Failed to load history</div>';
+      document.getElementById('history-list').innerHTML = '<div class="history-empty">' + t('historyModal.loadFailed') + '</div>';
     }
   }
 
@@ -382,24 +384,16 @@
   function renderHistory(logs) {
     const list = document.getElementById('history-list');
     if (logs.length === 0) {
-      list.innerHTML = '<div class="history-empty">No edit history yet.</div>';
+      list.innerHTML = '<div class="history-empty">' + t('historyModal.empty') + '</div>';
       return;
     }
 
     list.innerHTML = logs.map(log => {
-      const time = new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+      const time = new Date(log.created_at).toLocaleString(window.i18n.getDateLocale(), { dateStyle: 'short', timeStyle: 'short' });
       // Only show Recover button if snapshot exists
       const canRecover = log.snapshot_data && log.snapshot_data.length > 2; // more than "{}"
-      
-      const actionMap = {
-        'create_trip': 'Start Trip',
-        'update_trip': 'Edit Trip',
-        'add_event': 'Add Event',
-        'update_event': 'Edit Event',
-        'delete_event': 'Delete Event',
-        'recover': 'Recover'
-      };
-      const displayAction = actionMap[log.action] || log.action;
+
+      const displayAction = t('historyModal.actions.' + log.action) || log.action;
 
       return `
         <div class="history-item">
@@ -408,7 +402,7 @@
             <span class="history-time">${time}</span>
           </div>
           <div class="history-detail">${escapeHtml(log.detail)}</div>
-          ${canRecover ? `<button class="history-recover-btn" data-id="${log.id}">↩ Undo / Recover</button>` : ''}
+          ${canRecover ? `<button class="history-recover-btn" data-id="${log.id}">${t('historyModal.recover')}</button>` : ''}
         </div>
       `;
     }).join('');
@@ -417,10 +411,10 @@
     list.querySelectorAll('.history-recover-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const id = e.target.getAttribute('data-id');
-        if (!confirm('Are you sure you want to revert to this previous state? This will overwrite the current data.')) return;
+        if (!confirm(t('historyModal.confirmRecover'))) return;
         try {
           await api('POST', `/api/trips/${currentTrip.token}/history/${id}/recover`);
-          showToast('Successfully recovered previous data!');
+          showToast(t('historyModal.recoverSuccess'));
           closeHistory();
           // Reload trip data while preserving the current day tab
           const savedDay = currentDay;
@@ -430,41 +424,40 @@
           currentDay = savedDay;
           renderTripEditor();
         } catch (err) {
-          showToast('Failed to recover: ' + err.message, true);
+          showToast(t('historyModal.recoverFailed') + err.message, true);
         }
       });
     });
   }
 
-  // ── Toast ──
+  // ── Share ──
   function shareTrip() {
     if (!currentTrip) return;
     const url = window.location.origin + '/plan/' + currentTrip.token;
     navigator.clipboard.writeText(url).then(() => {
-      showToast('Link copied to clipboard! 🔗');
+      showToast(t('toast.linkCopied'));
     }).catch(() => {
-      // Fallback
-      prompt('Copy this link to share:', url);
+      prompt(t('share.copyPrompt'), url);
     });
   }
 
   // ── Delete trip ──
   async function deleteTripConfirm() {
     if (!currentTrip) return;
-    if (!confirm('Delete this entire trip? This cannot be undone.')) return;
+    if (!confirm(t('confirm.deleteTrip'))) return;
     try {
       await api('DELETE', `/api/trips/${currentTrip.token}`);
-      showToast('Trip deleted');
+      showToast(t('toast.tripDeleted'));
       window.history.pushState({}, '', '/');
       currentTrip = null;
       currentEvents = [];
       route();
     } catch (e) {
-      showToast('Failed to delete trip', true);
+      showToast(t('toast.tripDeleteFailed'), true);
     }
   }
 
-  // ── Modals ──
+  // ── Toast ──
   function showToast(message, isError) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -537,9 +530,58 @@
     });
   }
 
+  // ── Language switcher ──
+  function initLangPicker() {
+    const btn = document.getElementById('lang-picker-btn');
+    const menu = document.getElementById('lang-picker-menu');
+
+    function renderMenu() {
+      const locales = window.i18n.getAvailableLocales();
+      btn.textContent = locales.find(l => l.code === window.i18n.locale)?.label || 'EN';
+      menu.innerHTML = locales.map(function (l) {
+        return '<button class="lang-picker-option' + (l.code === window.i18n.locale ? ' active' : '') + '" data-lang="' + l.code + '">' + l.label + '</button>';
+      }).join('');
+    }
+
+    renderMenu();
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+    });
+
+    menu.addEventListener('click', function (e) {
+      const opt = e.target.closest('.lang-picker-option');
+      if (!opt) return;
+      menu.classList.remove('open');
+      window.i18n.setLocale(opt.dataset.lang);
+      renderMenu();
+      if (currentTrip) {
+        renderTripEditor();
+      }
+      const path = window.location.pathname;
+      if (!path.startsWith('/plan/')) {
+        const navActions = document.getElementById('nav-actions');
+        navActions.innerHTML = `
+          <button class="btn btn-primary btn-sm" id="nav-new-trip">${t('nav.newTrip')}</button>
+        `;
+        document.getElementById('nav-new-trip').addEventListener('click', createNewTrip);
+      }
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function () {
+      menu.classList.remove('open');
+    });
+  }
+
   // ── Initialize ──
   function init() {
+    // Apply i18n to static DOM
+    window.i18n.applyI18n();
+
     initNavbar();
+    initLangPicker();
 
     // Landing page buttons
     document.getElementById('hero-cta').addEventListener('click', createNewTrip);

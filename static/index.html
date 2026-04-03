@@ -17,8 +17,14 @@
             <span class="nav-logo">✈️</span>
             <span class="nav-title">TripFlow</span>
         </a>
-        <div class="nav-actions" id="nav-actions">
-            <!-- Dynamic based on page -->
+        <div class="nav-right">
+            <div class="nav-actions" id="nav-actions">
+                <!-- Dynamic based on page -->
+            </div>
+            <div class="lang-picker" id="lang-picker">
+                <button class="lang-picker-btn" id="lang-picker-btn"></button>
+                <div class="lang-picker-menu" id="lang-picker-menu"></div>
+            </div>
         </div>
     </nav>
 
@@ -28,22 +34,22 @@
         <!-- ═══════ LANDING PAGE ═══════ -->
         <section class="hero page" id="page-landing">
             <div class="hero-content">
-                <div class="hero-badge">✨ Plan together, travel together</div>
+                <div class="hero-badge" data-i18n="hero.badge">✨ Plan together, travel together</div>
                 <h1 class="hero-title">
-                    Plan Your Next
-                    <span class="gradient-text">Adventure</span>
-                    Together
+                    <span data-i18n="hero.titleLine1">Plan Your Next</span>
+                    <span class="gradient-text" data-i18n="hero.titleHighlight">Adventure</span>
+                    <span data-i18n="hero.titleLine2">Together</span>
                 </h1>
-                <p class="hero-subtitle">
-                    Create trip itineraries, share with family & friends, 
+                <p class="hero-subtitle" data-i18n="hero.subtitle">
+                    Create trip itineraries, share with family & friends,
                     and collaborate on the perfect travel plan — all in one place.
                 </p>
                 <div class="hero-actions">
                     <button class="btn btn-primary btn-lg" id="hero-cta">
-                        Start Planning
+                        <span data-i18n="hero.cta">Start Planning</span>
                         <span class="btn-icon">→</span>
                     </button>
-                    <button class="btn btn-ghost btn-lg" id="hero-demo">
+                    <button class="btn btn-ghost btn-lg" id="hero-demo" data-i18n="hero.demo">
                         See How It Works
                     </button>
                 </div>
@@ -51,24 +57,24 @@
                     <div class="stat">
                         <span class="stat-icon">🗺️</span>
                         <div class="stat-info">
-                            <span class="stat-value">Easy</span>
-                            <span class="stat-label">Trip Planning</span>
+                            <span class="stat-value" data-i18n="stats.easyValue">Easy</span>
+                            <span class="stat-label" data-i18n="stats.easyLabel">Trip Planning</span>
                         </div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat">
                         <span class="stat-icon">👨‍👩‍👧‍👦</span>
                         <div class="stat-info">
-                            <span class="stat-value">Share</span>
-                            <span class="stat-label">With Family</span>
+                            <span class="stat-value" data-i18n="stats.shareValue">Share</span>
+                            <span class="stat-label" data-i18n="stats.shareLabel">With Family</span>
                         </div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat">
                         <span class="stat-icon">📅</span>
                         <div class="stat-info">
-                            <span class="stat-value">Day-by-Day</span>
-                            <span class="stat-label">Itineraries</span>
+                            <span class="stat-value" data-i18n="stats.dayByDayValue">Day-by-Day</span>
+                            <span class="stat-label" data-i18n="stats.dayByDayLabel">Itineraries</span>
                         </div>
                     </div>
                 </div>
@@ -77,13 +83,13 @@
                 <div class="trip-card-preview">
                     <div class="trip-card-header">
                         <div>
-                            <h3>Summer Vacation 2026</h3>
-                            <p>Jeju Island, Korea</p>
+                            <h3 data-i18n="preview.title">Summer Vacation 2026</h3>
+                            <p data-i18n="preview.destination">Jeju Island, Korea</p>
                         </div>
                     </div>
                     <div class="trip-card-dates">
-                        <span>Jul 15 — Jul 22</span>
-                        <span class="trip-card-days">8 days</span>
+                        <span data-i18n="preview.dates">Jul 15 — Jul 22</span>
+                        <span class="trip-card-days" data-i18n="preview.days">8 days</span>
                     </div>
                     <div class="trip-card-members">
                         <div class="avatar" style="--hue: 200">SP</div>
@@ -95,22 +101,22 @@
                         <div class="timeline-item">
                             <span class="timeline-time">09:00</span>
                             <span class="timeline-dot"></span>
-                            <span class="timeline-event">🛫 Arrive at Jeju Airport</span>
+                            <span class="timeline-event" data-i18n="preview.event1">🛫 Arrive at Jeju Airport</span>
                         </div>
                         <div class="timeline-item">
                             <span class="timeline-time">11:00</span>
                             <span class="timeline-dot"></span>
-                            <span class="timeline-event">🏨 Check-in at Hotel</span>
+                            <span class="timeline-event" data-i18n="preview.event2">🏨 Check-in at Hotel</span>
                         </div>
                         <div class="timeline-item">
                             <span class="timeline-time">14:00</span>
                             <span class="timeline-dot"></span>
-                            <span class="timeline-event">🍊 Visit Tangerine Farm</span>
+                            <span class="timeline-event" data-i18n="preview.event3">🍊 Visit Tangerine Farm</span>
                         </div>
                         <div class="timeline-item">
                             <span class="timeline-time">18:00</span>
                             <span class="timeline-dot"></span>
-                            <span class="timeline-event">🍽️ Dinner — Black Pork BBQ</span>
+                            <span class="timeline-event" data-i18n="preview.event4">🍽️ Dinner — Black Pork BBQ</span>
                         </div>
                     </div>
                 </div>
@@ -119,37 +125,39 @@
 
         <!-- Features Section (part of landing page) -->
         <section class="features page" id="features">
-            <h2 class="section-title">Everything you need to plan <span class="gradient-text">the perfect trip</span></h2>
+            <h2 class="section-title">
+                <span data-i18n="features.titlePrefix">Everything you need to plan </span><span class="gradient-text" data-i18n="features.titleHighlight">the perfect trip</span>
+            </h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">📅</div>
-                    <h3>Itinerary Builder</h3>
-                    <p>Build day-by-day schedules with time slots, locations, and notes.</p>
+                    <h3 data-i18n="features.itineraryTitle">Itinerary Builder</h3>
+                    <p data-i18n="features.itineraryDesc">Build day-by-day schedules with time slots, locations, and notes.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔗</div>
-                    <h3>Share Instantly</h3>
-                    <p>Invite family with a simple link — no app download required.</p>
+                    <h3 data-i18n="features.shareTitle">Share Instantly</h3>
+                    <p data-i18n="features.shareDesc">Invite family with a simple link — no app download required.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">👥</div>
-                    <h3>Collaborate</h3>
-                    <p>Everyone can add events, suggest places, and vote on activities.</p>
+                    <h3 data-i18n="features.collaborateTitle">Collaborate</h3>
+                    <p data-i18n="features.collaborateDesc">Everyone can add events, suggest places, and vote on activities.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📍</div>
-                    <h3>Pin Locations</h3>
-                    <p>Attach restaurants, hotels, and attractions to your schedule.</p>
+                    <h3 data-i18n="features.pinTitle">Pin Locations</h3>
+                    <p data-i18n="features.pinDesc">Attach restaurants, hotels, and attractions to your schedule.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">✅</div>
-                    <h3>Task Assignment</h3>
-                    <p>Divide responsibilities — "Who books the hotel?"</p>
+                    <h3 data-i18n="features.taskTitle">Task Assignment</h3>
+                    <p data-i18n="features.taskDesc">Divide responsibilities — "Who books the hotel?"</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📱</div>
-                    <h3>Mobile Ready</h3>
-                    <p>Works perfectly on phones, tablets, and desktops.</p>
+                    <h3 data-i18n="features.mobileTitle">Mobile Ready</h3>
+                    <p data-i18n="features.mobileDesc">Works perfectly on phones, tablets, and desktops.</p>
                 </div>
             </div>
         </section>
@@ -160,17 +168,16 @@
             <div class="trip-editor">
                 <div class="trip-header">
                     <div class="trip-header-left">
-                        <!-- Emoji display removed -->
                         <div class="trip-header-info">
-                            <input type="text" class="input-inline input-title" id="trip-name" placeholder="Trip Name" value="Untitled Trip">
-                            <input type="text" class="input-inline input-subtitle" id="trip-destination" placeholder="Where are you going?">
+                            <input type="text" class="input-inline input-title" id="trip-name" data-i18n-placeholder="trip.namePlaceholder" placeholder="Trip Name" value="Untitled Trip">
+                            <input type="text" class="input-inline input-subtitle" id="trip-destination" data-i18n-placeholder="trip.destinationPlaceholder" placeholder="Where are you going?">
                         </div>
                     </div>
                     <div class="trip-header-right">
-                        <button class="btn btn-ghost btn-sm" id="btn-history-trip" title="View edit history">
+                        <button class="btn btn-ghost btn-sm" id="btn-history-trip" data-i18n="trip.history" data-i18n-title="trip.history">
                             🕒 History
                         </button>
-                        <button class="btn btn-ghost btn-sm" id="btn-share-trip" title="Copy share link">
+                        <button class="btn btn-ghost btn-sm" id="btn-share-trip" data-i18n="trip.shareLink">
                             🔗 Share Link
                         </button>
                         <button class="btn btn-ghost btn-sm btn-danger" id="btn-delete-trip" title="Delete this trip">
@@ -182,12 +189,12 @@
                 <!-- Date Range -->
                 <div class="trip-dates-bar">
                     <div class="date-input-group">
-                        <label>Start</label>
+                        <label data-i18n="trip.startLabel">Start</label>
                         <input type="date" class="input-date" id="trip-start-date">
                     </div>
                     <span class="date-separator">→</span>
                     <div class="date-input-group">
-                        <label>End</label>
+                        <label data-i18n="trip.endLabel">End</label>
                         <input type="date" class="input-date" id="trip-end-date">
                     </div>
                     <div class="trip-duration" id="trip-duration"></div>
@@ -204,14 +211,14 @@
                 <div class="events-container" id="events-container">
                     <div class="events-empty" id="events-empty">
                         <span class="empty-icon">📋</span>
-                        <p>No events for this day yet</p>
-                        <p class="empty-hint">Click the button below to add your first event</p>
+                        <p data-i18n="trip.noEvents">No events for this day yet</p>
+                        <p class="empty-hint" data-i18n="trip.noEventsHint">Click the button below to add your first event</p>
                     </div>
                     <div class="events-list" id="events-list">
                         <!-- Generated by JS -->
                     </div>
                     <button class="btn btn-add-event" id="btn-add-event">
-                        <span>+</span> Add Event
+                        <span>+</span> <span data-i18n="trip.addEvent">Add Event</span>
                     </button>
                 </div>
             </div>
@@ -226,32 +233,32 @@
                     <div class="modal-body">
                         <div class="form-row">
                             <div class="form-group" style="flex:1">
-                                <label>Title</label>
-                                <input type="text" class="input" id="event-title" placeholder="What's happening?">
+                                <label data-i18n="event.titleLabel">Title</label>
+                                <input type="text" class="input" id="event-title" data-i18n-placeholder="event.titlePlaceholder" placeholder="What's happening?">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Start Time</label>
+                                <label data-i18n="event.startTime">Start Time</label>
                                 <input type="time" class="input" id="event-start-time">
                             </div>
                             <div class="form-group">
-                                <label>End Time</label>
+                                <label data-i18n="event.endTime">End Time</label>
                                 <input type="time" class="input" id="event-end-time">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Location</label>
-                            <input type="text" class="input" id="event-location" placeholder="Where? (optional)">
+                            <label data-i18n="event.location">Location</label>
+                            <input type="text" class="input" id="event-location" data-i18n-placeholder="event.locationPlaceholder" placeholder="Where? (optional)">
                         </div>
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea class="input textarea" id="event-description" placeholder="Any details? (optional)" rows="3"></textarea>
+                            <label data-i18n="event.notes">Notes</label>
+                            <textarea class="input textarea" id="event-description" data-i18n-placeholder="event.notesPlaceholder" placeholder="Any details? (optional)" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
-                        <button class="btn btn-primary" id="modal-save">Save Event</button>
+                        <button class="btn btn-ghost" id="modal-cancel" data-i18n="event.cancel">Cancel</button>
+                        <button class="btn btn-primary" id="modal-save" data-i18n="event.save">Save Event</button>
                     </div>
                 </div>
             </div>
@@ -260,7 +267,7 @@
             <div class="modal-overlay" id="history-modal" style="display:none">
                 <div class="modal history-sidebar">
                     <div class="modal-header">
-                        <h3>Edit History</h3>
+                        <h3 data-i18n="historyModal.title">Edit History</h3>
                         <button class="modal-close" id="history-modal-close">✕</button>
                     </div>
                     <div class="modal-body history-body" id="history-list">
@@ -274,7 +281,7 @@
         <section class="page page-loading" id="page-loading" style="display:none">
             <div class="loader">
                 <div class="loader-spinner"></div>
-                <p>Loading your trip...</p>
+                <p data-i18n="loading">Loading your trip...</p>
             </div>
         </section>
 
@@ -282,9 +289,9 @@
         <section class="page page-notfound" id="page-notfound" style="display:none">
             <div class="notfound">
                 <span class="notfound-icon">🔍</span>
-                <h2>Trip not found</h2>
-                <p>This link may be invalid or the trip may have been deleted.</p>
-                <a href="/" class="btn btn-primary">Go Home</a>
+                <h2 data-i18n="notFound.title">Trip not found</h2>
+                <p data-i18n="notFound.desc">This link may be invalid or the trip may have been deleted.</p>
+                <a href="/" class="btn btn-primary" data-i18n="notFound.goHome">Go Home</a>
             </div>
         </section>
     </main>
@@ -292,14 +299,15 @@
     <!-- Footer -->
     <footer class="footer" id="footer">
         <div class="footer-content">
-            <span class="footer-brand">✈️ TripFlow</span>
-            <span class="footer-text">Plan together, travel together.</span>
+            <span class="footer-brand" data-i18n="footer.brand">✈️ TripFlow</span>
+            <span class="footer-text" data-i18n="footer.text">Plan together, travel together.</span>
         </div>
     </footer>
 
     <!-- Toast notification -->
     <div class="toast" id="toast"></div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
 </body>
 </html>

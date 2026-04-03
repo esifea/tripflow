@@ -113,6 +113,77 @@ body::before {
   letter-spacing: -0.02em;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-picker {
+  position: relative;
+}
+
+.lang-picker-btn {
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.lang-picker-btn:hover {
+  border-color: var(--accent-1);
+  color: var(--text-primary);
+}
+
+.lang-picker-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  min-width: 60px;
+  z-index: 300;
+}
+
+.lang-picker-menu.open {
+  display: block;
+}
+
+.lang-picker-option {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.lang-picker-option:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+}
+
+.lang-picker-option.active {
+  color: var(--accent-1);
+  font-weight: 700;
+}
+
 .nav-logo {
   font-size: 1.4rem;
 }
