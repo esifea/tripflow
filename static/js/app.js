@@ -83,7 +83,9 @@
       const data = await api('GET', `/api/trips/${token}`);
       currentTrip = data.trip;
       currentEvents = data.events || [];
-      currentDay = 1;
+      // Restore day from URL hash (e.g. #day3), default to 1
+      const hashMatch = window.location.hash.match(/^#day(\d+)$/);
+      currentDay = hashMatch ? parseInt(hashMatch[1]) : 1;
       renderTripEditor();
       showPage('trip');
     } catch (e) {
@@ -207,6 +209,7 @@
         currentDay = parseInt(tab.dataset.day);
         container.querySelectorAll('.day-tab').forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
+        window.history.replaceState(null, '', '#day' + currentDay);
         renderEvents();
       });
     });
