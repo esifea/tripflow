@@ -128,6 +128,7 @@
 
   // ── Auto-save trip metadata ──
   function scheduleSave() {
+    if (!validateTripDates()) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveTrip, 800);
   }
@@ -240,11 +241,30 @@
       return;
     }
 
+    // Detect overlapping time ranges
+    const overlappingIds = new Set();
+    const timedEvents = dayEvents.filter((ev) => ev.start_time);
+    for (let i = 0; i < timedEvents.length; i++) {
+      for (let j = i + 1; j < timedEvents.length; j++) {
+        const a = timedEvents[i];
+        const b = timedEvents[j];
+        const aStart = a.start_time;
+        const aEnd = a.end_time || a.start_time;
+        const bStart = b.start_time;
+        const bEnd = b.end_time || b.start_time;
+        if (aStart < bEnd && bStart < aEnd) {
+          overlappingIds.add(a.id);
+          overlappingIds.add(b.id);
+        }
+      }
+    }
+
     empty.style.display = 'none';
     list.innerHTML = dayEvents
       .map(
         (ev) => `
-      <div class="event-card" data-id="${ev.id}">
+      <div class="event-card${overlappingIds.has(ev.id) ? ' event-card-warn' : ''}" data-id="${ev.id}">
+        ${overlappingIds.has(ev.id) ? `<div class="event-warn-badge" title="${t('event.duplicateTimeWarn')}">⚠️</div>` : ''}
         <div class="event-card-left">
           ${ev.start_time ? `<div class="event-time-col">
             <span class="event-time">${formatTime(ev.start_time)}</span>
@@ -282,6 +302,52 @@
     });
   }
 
+  // ── Time/Date validation ──
+  function validateEventTimes() {
+    const startEl = document.getElementById('event-start-time');
+    const endEl = document.getElementById('event-end-time');
+    const errorEl = document.getElementById('time-error');
+
+    // Check incomplete: browser sets validity.badInput when time is partially filled
+    if (startEl.validity.badInput || endEl.validity.badInput) {
+      errorEl.textContent = t('toast.timeIncomplete');
+      startEl.classList.toggle('input-error', startEl.validity.badInput);
+      endEl.classList.toggle('input-error', endEl.validity.badInput);
+      return false;
+    }
+
+    // Check end before start
+    if (startEl.value && endEl.value && endEl.value <= startEl.value) {
+      errorEl.textContent = t('toast.endBeforeStart');
+      endEl.classList.add('input-error');
+      startEl.classList.remove('input-error');
+      return false;
+    }
+
+    errorEl.textContent = '';
+    startEl.classList.remove('input-error');
+    endEl.classList.remove('input-error');
+    return true;
+  }
+
+  function validateTripDates() {
+    const startEl = document.getElementById('trip-start-date');
+    const endEl = document.getElementById('trip-end-date');
+    const errorEl = document.getElementById('date-error');
+    const startVal = startEl.value;
+    const endVal = endEl.value;
+
+    if (startVal && endVal && endVal < startVal) {
+      errorEl.textContent = t('toast.dateEndBeforeStart');
+      endEl.classList.add('input-error');
+      return false;
+    }
+
+    errorEl.textContent = '';
+    endEl.classList.remove('input-error');
+    return true;
+  }
+
   // ── Event modal ──
   function openAddEvent() {
     editingEventId = null;
@@ -289,6 +355,9 @@
     document.getElementById('event-title').value = '';
     document.getElementById('event-start-time').value = '';
     document.getElementById('event-end-time').value = '';
+    document.getElementById('time-error').textContent = '';
+    document.getElementById('event-start-time').classList.remove('input-error');
+    document.getElementById('event-end-time').classList.remove('input-error');
     document.getElementById('event-location').value = '';
     document.getElementById('event-description').value = '';
     document.getElementById('event-modal').style.display = '';
@@ -304,6 +373,9 @@
     document.getElementById('event-title').value = ev.title;
     document.getElementById('event-start-time').value = ev.start_time || '';
     document.getElementById('event-end-time').value = ev.end_time || '';
+    document.getElementById('time-error').textContent = '';
+    document.getElementById('event-start-time').classList.remove('input-error');
+    document.getElementById('event-end-time').classList.remove('input-error');
     document.getElementById('event-location').value = ev.location || '';
     document.getElementById('event-description').value = ev.description || '';
     document.getElementById('event-modal').style.display = '';
@@ -321,6 +393,8 @@
       showToast(t('toast.titleRequired'), true);
       return;
     }
+
+    if (!validateEventTimes()) return;
 
     const payload = {
       day_number: currentDay,
@@ -592,7 +666,19 @@
     // Trip editor inputs — auto save
     ['trip-name', 'trip-destination', 'trip-start-date', 'trip-end-date'].forEach((id) => {
       const el = document.getElementById(id);
-      el.addEventListener('change', scheduleSave); // trigger only on blur to avoid history spam
+      el.addEventListener('change', scheduleSave);
+    });
+
+    // Live date validation
+    ['trip-start-date', 'trip-end-date'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', validateTripDates);
+    });
+
+    // Live time validation
+    ['event-start-time', 'event-end-time'].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', validateEventTimes);
+      el.addEventListener('change', validateEventTimes);
     });
 
     // Trip buttons

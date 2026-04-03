@@ -956,6 +956,31 @@ a.nav-brand {
   background: var(--bg-card-hover);
 }
 
+.event-card-warn {
+  border-color: #e6a817;
+  background: rgba(230, 168, 23, 0.04);
+  position: relative;
+}
+
+.event-card-warn:hover {
+  border-color: #d49b0e;
+}
+
+.event-warn-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 14px;
+  background: var(--bg-card);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
 .event-card-left {
   display: flex;
   gap: 16px;
@@ -1153,6 +1178,22 @@ a.nav-brand {
   gap: 10px;
   padding: 16px 24px;
   border-top: 1px solid var(--border-subtle);
+}
+
+.form-error {
+  font-size: 0.78rem;
+  color: #f87171;
+  min-height: 0;
+  transition: var(--transition-fast);
+}
+
+.form-error:empty {
+  display: none;
+}
+
+.input.input-error,
+.input-date.input-error {
+  border-color: rgba(239,68,68,0.5);
 }
 
 /* ── Form Inputs ── */
