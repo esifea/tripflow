@@ -89,20 +89,50 @@ func handleRecoverHistory(w http.ResponseWriter, r *http.Request, token string, 
 		}
 
 	case "update_trip":
-		var prevTrip Trip
-		if err := json.Unmarshal([]byte(h.Snapshot), &prevTrip); err != nil {
-			writeError(w, http.StatusInternalServerError, "failed to parse trip snapshot")
-			return
+		var changedFields map[string]string
+		if err := json.Unmarshal([]byte(h.Snapshot), &changedFields); err == nil {
+			// Restore only the specific fields that were changed
+			fieldToCol := map[string]string{
+				"name": "name", "destination": "destination",
+				"start_date": "start_date", "end_date": "end_date",
+			}
+			datesChanged := false
+			for field, prevValue := range changedFields {
+				col, ok := fieldToCol[field]
+				if !ok {
+					continue
+				}
+				if field == "start_date" || field == "end_date" {
+					datesChanged = true
+				}
+				if _, err = db.Exec(
+					`UPDATE trips SET `+col+`=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+					prevValue, trip.ID,
+				); err != nil {
+					writeError(w, http.StatusInternalServerError, "failed to recover trip")
+					return
+				}
+			}
+			if datesChanged {
+				restoredTrip, _ := getTripByToken(token)
+				deleteOrphanedEvents(trip.ID, restoredTrip.StartDate, restoredTrip.EndDate)
+			}
+		} else {
+			// Full trip restore (backward compatibility)
+			var prevTrip Trip
+			if err := json.Unmarshal([]byte(h.Snapshot), &prevTrip); err != nil {
+				writeError(w, http.StatusInternalServerError, "failed to parse trip snapshot")
+				return
+			}
+			if _, err = db.Exec(
+				`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+				prevTrip.Name, prevTrip.Destination, prevTrip.StartDate, prevTrip.EndDate, trip.ID,
+			); err != nil {
+				writeError(w, http.StatusInternalServerError, "failed to recover trip")
+				return
+			}
+			deleteOrphanedEvents(trip.ID, prevTrip.StartDate, prevTrip.EndDate)
 		}
-		if _, err = db.Exec(
-			`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-			prevTrip.Name, prevTrip.Destination, prevTrip.StartDate, prevTrip.EndDate, trip.ID,
-		); err != nil {
-			writeError(w, http.StatusInternalServerError, "failed to recover trip")
-			return
-		}
-		// Delete events outside the restored date range
-		deleteOrphanedEvents(trip.ID, prevTrip.StartDate, prevTrip.EndDate)
 		// Delete only this history entry
 		db.Exec(`DELETE FROM history WHERE id = ?`, h.ID)
 

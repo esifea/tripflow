@@ -157,7 +157,22 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updated, _ := getTripByToken(token)
-	logHistory(trip.ID, "update_trip", "Updated trip metadata", prevTrip)
+	detail := describeTripChanges(prevTrip, req)
+	// Store only the changed fields' previous values (not the full trip)
+	changedFields := map[string]string{}
+	if req.Name != prevTrip.Name {
+		changedFields["name"] = prevTrip.Name
+	}
+	if req.Destination != prevTrip.Destination {
+		changedFields["destination"] = prevTrip.Destination
+	}
+	if req.StartDate != prevTrip.StartDate {
+		changedFields["start_date"] = prevTrip.StartDate
+	}
+	if req.EndDate != prevTrip.EndDate {
+		changedFields["end_date"] = prevTrip.EndDate
+	}
+	logHistory(trip.ID, "update_trip", detail, changedFields)
 	writeJSON(w, http.StatusOK, updated)
 }
 
@@ -233,6 +248,38 @@ func getTripByToken(token string) (Trip, error) {
 		token,
 	).Scan(&t.ID, &t.Token, &t.Name, &t.Destination, &t.StartDate, &t.EndDate, &t.CreatedAt, &t.UpdatedAt)
 	return t, err
+}
+
+func describeTripChanges(prev Trip, req UpdateTripRequest) string {
+	var changes []string
+	if req.Name != prev.Name {
+		changes = append(changes, "Renamed to \""+req.Name+"\"")
+	}
+	if req.Destination != prev.Destination {
+		if req.Destination == "" {
+			changes = append(changes, "Cleared destination")
+		} else {
+			changes = append(changes, "Set destination to "+req.Destination)
+		}
+	}
+	if req.StartDate != prev.StartDate {
+		if req.StartDate == "" {
+			changes = append(changes, "Cleared start date")
+		} else {
+			changes = append(changes, "Set start date to "+req.StartDate)
+		}
+	}
+	if req.EndDate != prev.EndDate {
+		if req.EndDate == "" {
+			changes = append(changes, "Cleared end date")
+		} else {
+			changes = append(changes, "Set end date to "+req.EndDate)
+		}
+	}
+	if len(changes) == 0 {
+		return "Updated trip metadata"
+	}
+	return strings.Join(changes, ", ")
 }
 
 func extractToken(path, prefix string) string {
