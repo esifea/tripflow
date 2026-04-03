@@ -48,6 +48,25 @@ Example:
 PORT=3000 DB_PATH=/data/tripflow.db ./tripflow
 ```
 
+## Docker Deployment
+
+Build and run with Docker (e.g., on a NAS):
+
+```sh
+docker build -t tripflow -f deployment/Dockerfile .
+docker run -d -p 18080:18080 -v tripflow-data:/app/data --name tripflow tripflow
+```
+
+The database is stored in the `tripflow-data` volume, so it persists across container restarts and updates.
+
+To rebuild and update:
+
+```sh
+docker stop tripflow && docker rm tripflow
+docker build -t tripflow -f deployment/Dockerfile .
+docker run -d -p 18080:18080 -v tripflow-data:/app/data --name tripflow tripflow
+```
+
 ## Project Structure
 
 ```
@@ -64,6 +83,9 @@ tripflow/
 │   ├── index.html       # Single-page app shell
 │   ├── css/style.css    # All styles
 │   └── js/app.js        # Client-side router, editor, API calls
+├── deployment/
+│   ├── Dockerfile       # Multi-stage Docker build
+│   └── .dockerignore    # Docker build exclusions
 └── tripflow.db          # SQLite database (created on first run)
 ```
 

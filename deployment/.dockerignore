@@ -1,0 +1,6 @@
+tripflow
+tripflow.db
+tripflow.db-*
+.git
+.DS_Store
+*.sh
