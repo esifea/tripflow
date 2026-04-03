@@ -900,19 +900,11 @@ a.nav-brand {
 }
 
 .event-time {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--accent-3);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
-}
-
-.event-time-empty {
-  color: var(--text-muted);
-}
-
-.event-time-end {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .event-dot-line {

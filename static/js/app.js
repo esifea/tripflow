@@ -218,7 +218,16 @@
     const empty = document.getElementById('events-empty');
     const dayEvents = currentEvents
       .filter((e) => e.day_number === currentDay)
-      .sort((a, b) => a.sort_order - b.sort_order || (a.start_time || '').localeCompare(b.start_time || ''));
+      .sort((a, b) => {
+        // Events with start_time come first, sorted by time
+        const aTime = a.start_time || '';
+        const bTime = b.start_time || '';
+        if (aTime && !bTime) return -1;
+        if (!aTime && bTime) return 1;
+        if (aTime && bTime) return aTime.localeCompare(bTime);
+        // Both without time: keep creation order
+        return a.sort_order - b.sort_order;
+      });
 
     if (dayEvents.length === 0) {
       list.innerHTML = '';
@@ -232,10 +241,10 @@
         (ev) => `
       <div class="event-card" data-id="${ev.id}">
         <div class="event-card-left">
-          <div class="event-time-col">
-            ${ev.start_time ? `<span class="event-time">${formatTime(ev.start_time)}</span>` : '<span class="event-time event-time-empty">--:--</span>'}
-            ${ev.end_time ? `<span class="event-time-end">— ${formatTime(ev.end_time)}</span>` : ''}
-          </div>
+          ${ev.start_time ? `<div class="event-time-col">
+            <span class="event-time">${formatTime(ev.start_time)}</span>
+            ${ev.end_time ? `<span class="event-time">— ${formatTime(ev.end_time)}</span>` : ''}
+          </div>` : ''}
           <div class="event-dot-line">
             <span class="event-dot"></span>
             <span class="event-line"></span>
@@ -566,7 +575,7 @@
       if (e.key === 'Escape') closeModal();
       if (e.key === 'Enter' && document.getElementById('event-modal').style.display !== 'none') {
         const focused = document.activeElement;
-        if (focused.tagName !== 'TEXTAREA') saveEvent();
+        if (focused.tagName !== 'TEXTAREA' && focused.type !== 'time') saveEvent();
       }
     });
 
