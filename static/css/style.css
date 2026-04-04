@@ -1,6 +1,6 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    TripFlow — Design System
-   Dark theme with vibrant gradients
+   Pastel light theme with soft gradients
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 /* ── Reset & Tokens ── */
@@ -11,39 +11,39 @@
 }
 
 :root {
-  /* Colors */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #16161f;
-  --bg-card-hover: #1c1c28;
-  --bg-elevated: #1e1e2a;
+  /* Colors — Pastel */
+  --bg-primary: #f8f6ff;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f0ff;
+  --bg-elevated: #f0ecfa;
 
-  --text-primary: #f0f0f5;
-  --text-secondary: #9898ad;
-  --text-muted: #5e5e73;
+  --text-primary: #2d2843;
+  --text-secondary: #6b6488;
+  --text-muted: #9e97b8;
 
-  --accent-1: #6366f1;     /* Indigo */
-  --accent-2: #8b5cf6;     /* Violet */
-  --accent-3: #a78bfa;     /* Light Violet */
-  --accent-4: #06b6d4;     /* Cyan */
+  --accent-1: #8b7fea;     /* Soft Indigo */
+  --accent-2: #b49ae0;     /* Soft Violet */
+  --accent-3: #c4a8ff;     /* Light Lavender */
+  --accent-4: #7ec8d4;     /* Soft Teal */
 
   --gradient-primary: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-4));
-  --gradient-text: linear-gradient(135deg, var(--accent-3), var(--accent-4));
-  --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.05));
-  --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99,102,241,0.06), transparent 60%);
+  --gradient-text: linear-gradient(135deg, var(--accent-1), var(--accent-4));
+  --gradient-card: linear-gradient(135deg, rgba(139,127,234,0.06), rgba(126,200,212,0.04));
+  --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139,127,234,0.05), transparent 60%);
 
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-accent: rgba(99,102,241,0.3);
+  --border-subtle: rgba(139,127,234,0.12);
+  --border-accent: rgba(139,127,234,0.35);
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
+  --shadow-sm: 0 2px 8px rgba(139,127,234,0.08);
+  --shadow-md: 0 8px 24px rgba(139,127,234,0.1);
+  --shadow-lg: 0 16px 48px rgba(139,127,234,0.12);
+  --shadow-glow: 0 0 40px rgba(139,127,234,0.08);
 
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
@@ -76,7 +76,7 @@ body::before {
   transform: translateX(-50%);
   width: 800px;
   height: 600px;
-  background: radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 40%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(139,127,234,0.1) 0%, rgba(180,154,224,0.06) 40%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -97,7 +97,7 @@ body::before {
 }
 
 .navbar.scrolled {
-  background: rgba(10,10,15,0.85);
+  background: rgba(248,246,255,0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
@@ -175,7 +175,7 @@ body::before {
 }
 
 .lang-picker-option:hover {
-  background: rgba(255,255,255,0.06);
+  background: rgba(139,127,234,0.06);
   color: var(--text-primary);
 }
 
@@ -220,11 +220,11 @@ body::before {
 .btn-primary {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+  box-shadow: 0 4px 16px rgba(139,127,234,0.25);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 24px rgba(99,102,241,0.45);
+  box-shadow: 0 6px 24px rgba(139,127,234,0.35);
   transform: translateY(-1px);
 }
 
@@ -237,7 +237,7 @@ body::before {
 .btn-ghost:hover {
   color: var(--text-primary);
   border-color: var(--border-accent);
-  background: rgba(99,102,241,0.06);
+  background: rgba(139,127,234,0.06);
 }
 
 .btn-lg {
@@ -272,9 +272,9 @@ body::before {
   padding: 6px 16px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--accent-3);
-  background: rgba(167,139,250,0.1);
-  border: 1px solid rgba(167,139,250,0.2);
+  color: var(--accent-1);
+  background: rgba(139,127,234,0.08);
+  border: 1px solid rgba(139,127,234,0.18);
   border-radius: 100px;
   margin-bottom: 24px;
 }
@@ -403,7 +403,7 @@ body::before {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(99,102,241,0.06);
+  background: rgba(139,127,234,0.06);
   border-radius: var(--radius-md);
   font-size: 0.82rem;
   color: var(--text-secondary);
@@ -431,7 +431,7 @@ body::before {
   font-size: 0.7rem;
   font-weight: 700;
   color: white;
-  background: hsl(var(--hue, 200), 60%, 45%);
+  background: hsl(var(--hue, 200), 55%, 72%);
   border: 2px solid var(--bg-card);
   margin-left: -6px;
 }
@@ -485,7 +485,7 @@ body::before {
   height: 8px;
   border-radius: 50%;
   background: var(--accent-1);
-  box-shadow: 0 0 8px rgba(99,102,241,0.4);
+  box-shadow: 0 0 8px rgba(139,127,234,0.25);
 }
 
 .timeline-event {
@@ -695,9 +695,9 @@ body::before {
 }
 
 .btn-danger:hover {
-  border-color: rgba(239,68,68,0.4);
-  color: #f87171;
-  background: rgba(239,68,68,0.08);
+  border-color: rgba(220,100,100,0.4);
+  color: #d47272;
+  background: rgba(220,100,100,0.08);
 }
 
 a.nav-brand {
@@ -761,7 +761,7 @@ a.nav-brand {
 .input-inline:focus {
   outline: none;
   border-color: var(--border-accent);
-  background: rgba(99,102,241,0.04);
+  background: rgba(139,127,234,0.04);
 }
 
 .input-title {
@@ -814,7 +814,7 @@ a.nav-brand {
   font-size: 0.88rem;
   padding: 8px 12px;
   transition: var(--transition-base);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .input-date:focus {
@@ -831,7 +831,7 @@ a.nav-brand {
 .trip-duration {
   margin-left: auto;
   padding: 6px 14px;
-  background: rgba(99,102,241,0.1);
+  background: rgba(139,127,234,0.1);
   border-radius: 100px;
   font-size: 0.82rem;
   font-weight: 600;
@@ -880,7 +880,7 @@ a.nav-brand {
 }
 
 .day-tab.active {
-  background: rgba(99,102,241,0.12);
+  background: rgba(139,127,234,0.12);
   border-color: var(--accent-1);
   color: var(--text-primary);
 }
@@ -957,13 +957,13 @@ a.nav-brand {
 }
 
 .event-card-warn {
-  border-color: #e6a817;
-  background: rgba(230, 168, 23, 0.04);
+  border-color: #e0c06a;
+  background: rgba(230, 192, 106, 0.08);
   position: relative;
 }
 
 .event-card-warn:hover {
-  border-color: #d49b0e;
+  border-color: #d4b35e;
 }
 
 .event-warn-badge {
@@ -1016,7 +1016,7 @@ a.nav-brand {
   height: 10px;
   border-radius: 50%;
   background: var(--accent-1);
-  box-shadow: 0 0 8px rgba(99,102,241,0.4);
+  box-shadow: 0 0 8px rgba(139,127,234,0.25);
   flex-shrink: 0;
 }
 
@@ -1078,7 +1078,7 @@ a.nav-brand {
 }
 
 .event-action-btn:hover {
-  background: rgba(255,255,255,0.06);
+  background: rgba(139,127,234,0.06);
 }
 
 /* ── Add Event Button ── */
@@ -1104,7 +1104,7 @@ a.nav-brand {
 .btn-add-event:hover {
   border-color: var(--accent-1);
   color: var(--accent-3);
-  background: rgba(99,102,241,0.04);
+  background: rgba(139,127,234,0.04);
 }
 
 .btn-add-event span {
@@ -1116,7 +1116,7 @@ a.nav-brand {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(45,40,67,0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 200;
@@ -1162,7 +1162,7 @@ a.nav-brand {
 
 .modal-close:hover {
   color: var(--text-primary);
-  background: rgba(255,255,255,0.06);
+  background: rgba(139,127,234,0.06);
 }
 
 .modal-body {
@@ -1182,7 +1182,7 @@ a.nav-brand {
 
 .form-error {
   font-size: 0.78rem;
-  color: #f87171;
+  color: #d47272;
   min-height: 0;
   transition: var(--transition-fast);
 }
@@ -1193,7 +1193,7 @@ a.nav-brand {
 
 .input.input-error,
 .input-date.input-error {
-  border-color: rgba(239,68,68,0.5);
+  border-color: rgba(220,100,100,0.5);
 }
 
 /* ── Form Inputs ── */
@@ -1226,13 +1226,13 @@ a.nav-brand {
   font-size: 0.9rem;
   padding: 10px 14px;
   transition: var(--transition-base);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--accent-1);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  box-shadow: 0 0 0 3px rgba(139,127,234,0.1);
 }
 
 .input::placeholder {
@@ -1328,7 +1328,7 @@ a.nav-brand {
 .history-recover-btn:hover {
   border-color: var(--accent-1);
   color: var(--accent-1);
-  background: rgba(99,102,241,0.06);
+  background: rgba(139,127,234,0.06);
 }
 
 /* ━━━ TOAST ━━━ */
@@ -1357,8 +1357,8 @@ a.nav-brand {
 }
 
 .toast.toast-error {
-  border-color: rgba(239,68,68,0.3);
-  color: #f87171;
+  border-color: rgba(220,100,100,0.3);
+  color: #d47272;
 }
 
 /* ━━━ LOADING STATE ━━━ */
