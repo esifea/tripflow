@@ -346,17 +346,37 @@
   let dragContainerBound = false;
   let dragOrderChanged = false;
 
+  function liveReorder(list, clientY) {
+    if (!dragSrcEl) return;
+    const cards = [...list.querySelectorAll('.event-card:not(.dragging)')];
+    let inserted = false;
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      if (clientY < rect.top + rect.height / 2) {
+        if (card !== dragSrcEl.nextElementSibling) {
+          list.insertBefore(dragSrcEl, card);
+          dragOrderChanged = true;
+        }
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted && list.lastElementChild !== dragSrcEl) {
+      list.appendChild(dragSrcEl);
+      dragOrderChanged = true;
+    }
+  }
+
   function initDragReorder(list) {
     const draggables = list.querySelectorAll('.event-card-draggable');
 
-    // Only untimed cards can be dragged (via handle)
     draggables.forEach((card) => {
-      card.draggable = false;
       const handle = card.querySelector('.drag-handle');
-      if (handle) {
-        handle.addEventListener('mousedown', () => { card.draggable = true; });
-        handle.addEventListener('touchstart', () => { card.draggable = true; }, { passive: true });
-      }
+      if (!handle) return;
+
+      // ── Desktop: HTML5 drag ──
+      card.draggable = false;
+      handle.addEventListener('mousedown', () => { card.draggable = true; });
       card.addEventListener('dragstart', (e) => {
         dragSrcEl = card;
         dragOrderChanged = false;
@@ -367,12 +387,18 @@
       card.addEventListener('dragend', () => {
         card.classList.remove('dragging');
         card.draggable = false;
-        if (dragOrderChanged) {
-          saveDragOrder(list);
-        }
+        if (dragOrderChanged) saveDragOrder(list);
         dragSrcEl = null;
         dragOrderChanged = false;
       });
+
+      // ── Touch: manual drag ──
+      handle.addEventListener('touchstart', (e) => {
+        dragSrcEl = card;
+        dragOrderChanged = false;
+        card.classList.add('dragging');
+        e.preventDefault();
+      }, { passive: false });
     });
 
     // Bind container listeners once
@@ -380,33 +406,28 @@
     dragContainerBound = true;
     const container = document.getElementById('events-container');
 
+    // Desktop dragover
     container.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      if (!dragSrcEl) return;
-
-      // Find the card the pointer is over and move live
-      const cards = [...list.querySelectorAll('.event-card:not(.dragging)')];
-      let inserted = false;
-      for (const card of cards) {
-        const rect = card.getBoundingClientRect();
-        if (e.clientY < rect.top + rect.height / 2) {
-          if (card !== dragSrcEl.nextElementSibling) {
-            list.insertBefore(dragSrcEl, card);
-            dragOrderChanged = true;
-          }
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted && list.lastElementChild !== dragSrcEl) {
-        list.appendChild(dragSrcEl);
-        dragOrderChanged = true;
-      }
+      liveReorder(list, e.clientY);
     });
+    container.addEventListener('drop', (e) => { e.preventDefault(); });
 
-    container.addEventListener('drop', (e) => {
+    // Touch move/end (bound on document so finger can move outside container)
+    document.addEventListener('touchmove', (e) => {
+      if (!dragSrcEl) return;
       e.preventDefault();
+      const touch = e.touches[0];
+      liveReorder(list, touch.clientY);
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+      if (!dragSrcEl) return;
+      dragSrcEl.classList.remove('dragging');
+      if (dragOrderChanged) saveDragOrder(list);
+      dragSrcEl = null;
+      dragOrderChanged = false;
     });
   }
 
