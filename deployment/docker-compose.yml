@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  tripflow:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: tripflow
+    restart: unless-stopped
+    ports:
+      - "18080:18080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=18080
+      - DB_PATH=/app/data/tripflow.db
