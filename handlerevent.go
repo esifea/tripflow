@@ -30,6 +30,12 @@ func handleEventRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /api/trips/{token}/events/reorder
+	if strings.HasSuffix(path, "/reorder") {
+		handleReorderEvents(w, r, token)
+		return
+	}
+
 	// /api/trips/{token}/events/{id}
 	eventIDStr := strings.TrimPrefix(path, eventsPath+"/")
 	eventID, err := strconv.ParseInt(eventIDStr, 10, 64)
@@ -200,6 +206,51 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request, token string, eve
 
 	logHistory(trip.ID, "delete_event", fmt.Sprintf("Deleted event ID: %d", eventID), prevEvent)
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+func handleReorderEvents(w http.ResponseWriter, r *http.Request, token string) {
+	if r.Method != http.MethodPut {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	trip, err := getTripByToken(token)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "trip not found")
+		return
+	}
+
+	var req ReorderRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to start transaction")
+		return
+	}
+
+	for i, eventID := range req.EventIDs {
+		if _, err := tx.Exec(
+			`UPDATE events SET sort_order=? WHERE id=? AND trip_id=?`,
+			i+1, eventID, trip.ID,
+		); err != nil {
+			tx.Rollback()
+			log.Printf("Error reordering event %d: %v", eventID, err)
+			writeError(w, http.StatusInternalServerError, "failed to reorder events")
+			return
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("Error committing reorder: %v", err)
+		writeError(w, http.StatusInternalServerError, "failed to commit reorder")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "reordered"})
 }
 
 //--- DB helpers ---//

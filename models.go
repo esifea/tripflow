@@ -69,6 +69,10 @@ type UpdateEventRequest struct {
 	SortOrder   int    `json:"sort_order"`
 }
 
+type ReorderRequest struct {
+	EventIDs []int64 `json:"event_ids"`
+}
+
 type History struct {
 	ID        int64     `json:"id"`
 	TripID    int64     `json:"trip_id"`

@@ -1052,6 +1052,38 @@ a.nav-brand {
   cursor: default;
 }
 
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  padding: 0 4px;
+  user-select: none;
+  opacity: 0.5;
+  transition: var(--transition-fast);
+  letter-spacing: 2px;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--accent-1);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.event-card-draggable {
+  position: relative;
+}
+
+.event-card.dragging {
+  opacity: 0.3;
+  border-style: dashed;
+}
+
 .event-card-left {
   display: flex;
   gap: 16px;

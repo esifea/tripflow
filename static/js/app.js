@@ -240,18 +240,9 @@
   function renderEvents() {
     const list = document.getElementById('events-list');
     const empty = document.getElementById('events-empty');
-    const dayEvents = currentEvents
-      .filter((e) => e.day_number === currentDay)
-      .sort((a, b) => {
-        // Events with start_time come first, sorted by time
-        const aTime = a.start_time || '';
-        const bTime = b.start_time || '';
-        if (aTime && !bTime) return -1;
-        if (!aTime && bTime) return 1;
-        if (aTime && bTime) return aTime.localeCompare(bTime);
-        // Both without time: keep creation order
-        return a.sort_order - b.sort_order;
-      });
+    const dayEvents = sortDayEvents(
+      currentEvents.filter((e) => e.day_number === currentDay)
+    );
 
     if (dayEvents.length === 0) {
       list.innerHTML = '';
@@ -281,8 +272,9 @@
     list.innerHTML = dayEvents
       .map(
         (ev) => `
-      <div class="event-card${overlappingIds.has(ev.id) ? ' event-card-warn' : ''}" data-id="${ev.id}">
+      <div class="event-card${overlappingIds.has(ev.id) ? ' event-card-warn' : ''}${!ev.start_time ? ' event-card-draggable' : ''}" data-id="${ev.id}" ${!ev.start_time ? 'draggable="true"' : ''}>
         ${overlappingIds.has(ev.id) ? `<div class="event-warn-badge" title="${t('event.duplicateTimeWarn')}">⚠️</div>` : ''}
+        ${!ev.start_time ? '<div class="drag-handle" title="Drag to reorder">⠿</div>' : ''}
         <div class="event-card-left">
           ${ev.start_time ? `<div class="event-time-col">
             <span class="event-time">${formatTime(ev.start_time)}</span>
@@ -318,6 +310,127 @@
         else if (btn.dataset.action === 'delete') deleteEvent(id);
       });
     });
+
+    // Drag-and-drop for untimed events
+    initDragReorder(list);
+  }
+
+  // ── Event sort: sort_order primary, timed runs sub-sorted by time ──
+  function sortDayEvents(events) {
+    // First pass: sort by sort_order
+    const sorted = [...events].sort((a, b) => a.sort_order - b.sort_order);
+    // Second pass: within consecutive timed events, sort by start_time
+    const result = [];
+    let timedRun = [];
+    for (const ev of sorted) {
+      if (ev.start_time) {
+        timedRun.push(ev);
+      } else {
+        if (timedRun.length > 0) {
+          timedRun.sort((a, b) => a.start_time.localeCompare(b.start_time));
+          result.push(...timedRun);
+          timedRun = [];
+        }
+        result.push(ev);
+      }
+    }
+    if (timedRun.length > 0) {
+      timedRun.sort((a, b) => a.start_time.localeCompare(b.start_time));
+      result.push(...timedRun);
+    }
+    return result;
+  }
+
+  // ── Drag-and-drop reordering ──
+  let dragSrcEl = null;
+  let dragContainerBound = false;
+  let dragOrderChanged = false;
+
+  function initDragReorder(list) {
+    const draggables = list.querySelectorAll('.event-card-draggable');
+
+    // Only untimed cards can be dragged (via handle)
+    draggables.forEach((card) => {
+      card.draggable = false;
+      const handle = card.querySelector('.drag-handle');
+      if (handle) {
+        handle.addEventListener('mousedown', () => { card.draggable = true; });
+        handle.addEventListener('touchstart', () => { card.draggable = true; }, { passive: true });
+      }
+      card.addEventListener('dragstart', (e) => {
+        dragSrcEl = card;
+        dragOrderChanged = false;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        card.draggable = false;
+        if (dragOrderChanged) {
+          saveDragOrder(list);
+        }
+        dragSrcEl = null;
+        dragOrderChanged = false;
+      });
+    });
+
+    // Bind container listeners once
+    if (dragContainerBound) return;
+    dragContainerBound = true;
+    const container = document.getElementById('events-container');
+
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!dragSrcEl) return;
+
+      // Find the card the pointer is over and move live
+      const cards = [...list.querySelectorAll('.event-card:not(.dragging)')];
+      let inserted = false;
+      for (const card of cards) {
+        const rect = card.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          if (card !== dragSrcEl.nextElementSibling) {
+            list.insertBefore(dragSrcEl, card);
+            dragOrderChanged = true;
+          }
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted && list.lastElementChild !== dragSrcEl) {
+        list.appendChild(dragSrcEl);
+        dragOrderChanged = true;
+      }
+    });
+
+    container.addEventListener('drop', (e) => {
+      e.preventDefault();
+    });
+  }
+
+  async function saveDragOrder(list) {
+    // Read new order from DOM, assign sequential sort_orders
+    const cards = list.querySelectorAll('.event-card');
+    const eventIds = [];
+    cards.forEach((card, i) => {
+      const id = parseInt(card.dataset.id);
+      const ev = currentEvents.find((e) => e.id === id);
+      if (!ev) return;
+      ev.sort_order = i + 1;
+      eventIds.push(id);
+    });
+
+    // Save via batch reorder endpoint
+    try {
+      await api('PUT', `/api/trips/${currentTrip.token}/events/reorder`, {
+        event_ids: eventIds,
+      });
+    } catch (e) {
+      console.error('Failed to save reorder:', e);
+    }
+    renderEvents();
   }
 
   // ── Time/Date validation ──
