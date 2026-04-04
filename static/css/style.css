@@ -838,6 +838,77 @@ a.nav-brand {
   color: var(--accent-3);
 }
 
+/* ── Trip Memo ── */
+.memo-section {
+  margin-bottom: 24px;
+}
+
+.memo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.memo-toggle:hover {
+  border-color: var(--border-accent);
+  color: var(--text-primary);
+}
+
+.memo-section.open .memo-toggle {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom-color: transparent;
+  color: var(--text-primary);
+}
+
+.memo-toggle-icon {
+  font-size: 0.65rem;
+  transition: transform var(--transition-base);
+  display: inline-block;
+}
+
+.memo-section.open .memo-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.memo-badge {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.memo-body {
+  display: none;
+  border: 1px solid var(--border-subtle);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: 12px;
+  background: var(--bg-card);
+}
+
+.memo-section.open .memo-body {
+  display: block;
+}
+
+.memo-textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  border: 1px solid var(--border-subtle);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
 /* ── Day Tabs ── */
 .day-tabs-wrapper {
   margin-bottom: 24px;

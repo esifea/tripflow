@@ -10,6 +10,7 @@ type Trip struct {
 	Destination string    `json:"destination"`
 	StartDate   string    `json:"start_date"`
 	EndDate     string    `json:"end_date"`
+	Memo        string    `json:"memo"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -45,6 +46,7 @@ type UpdateTripRequest struct {
 	Destination string `json:"destination"`
 	StartDate   string `json:"start_date"`
 	EndDate     string `json:"end_date"`
+	Memo        string `json:"memo"`
 }
 
 type CreateEventRequest struct {

@@ -147,8 +147,8 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = db.Exec(
-		`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, updated_at=CURRENT_TIMESTAMP WHERE token=?`,
-		req.Name, req.Destination, req.StartDate, req.EndDate, token,
+		`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, memo=?, updated_at=CURRENT_TIMESTAMP WHERE token=?`,
+		req.Name, req.Destination, req.StartDate, req.EndDate, req.Memo, token,
 	)
 	if err != nil {
 		log.Printf("Error updating trip: %v", err)
@@ -171,6 +171,9 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.EndDate != prevTrip.EndDate {
 		changedFields["end_date"] = prevTrip.EndDate
+	}
+	if req.Memo != prevTrip.Memo {
+		changedFields["memo"] = prevTrip.Memo
 	}
 	logHistory(trip.ID, "update_trip", detail, changedFields)
 	writeJSON(w, http.StatusOK, updated)
@@ -244,9 +247,9 @@ func handleTripRouter(w http.ResponseWriter, r *http.Request) {
 func getTripByToken(token string) (Trip, error) {
 	var t Trip
 	err := db.QueryRow(
-		`SELECT id, token, name, destination, start_date, end_date, created_at, updated_at FROM trips WHERE token=?`,
+		`SELECT id, token, name, destination, start_date, end_date, memo, created_at, updated_at FROM trips WHERE token=?`,
 		token,
-	).Scan(&t.ID, &t.Token, &t.Name, &t.Destination, &t.StartDate, &t.EndDate, &t.CreatedAt, &t.UpdatedAt)
+	).Scan(&t.ID, &t.Token, &t.Name, &t.Destination, &t.StartDate, &t.EndDate, &t.Memo, &t.CreatedAt, &t.UpdatedAt)
 	return t, err
 }
 
@@ -274,6 +277,13 @@ func describeTripChanges(prev Trip, req UpdateTripRequest) string {
 			changes = append(changes, "Cleared end date")
 		} else {
 			changes = append(changes, "Set end date to "+req.EndDate)
+		}
+	}
+	if req.Memo != prev.Memo {
+		if req.Memo == "" {
+			changes = append(changes, "Cleared memo")
+		} else {
+			changes = append(changes, "Updated memo")
 		}
 	}
 	if len(changes) == 0 {

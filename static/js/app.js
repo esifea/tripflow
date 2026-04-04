@@ -120,6 +120,8 @@
     document.getElementById('trip-destination').value = currentTrip.destination || '';
     document.getElementById('trip-start-date').value = currentTrip.start_date || '';
     document.getElementById('trip-end-date').value = currentTrip.end_date || '';
+    document.getElementById('trip-memo').value = currentTrip.memo || '';
+    updateMemoBadge();
 
     updateDuration();
     renderDayTabs();
@@ -141,6 +143,7 @@
         destination: document.getElementById('trip-destination').value.trim(),
         start_date: document.getElementById('trip-start-date').value,
         end_date: document.getElementById('trip-end-date').value,
+        memo: document.getElementById('trip-memo').value,
       });
       currentTrip = updated;
       updateDuration();
@@ -148,6 +151,21 @@
     } catch (e) {
       console.error('Failed to save trip:', e);
     }
+  }
+
+  // ── Memo toggle ──
+  function toggleMemo() {
+    const section = document.getElementById('memo-section');
+    section.classList.toggle('open');
+    if (section.classList.contains('open')) {
+      document.getElementById('trip-memo').focus();
+    }
+  }
+
+  function updateMemoBadge() {
+    const memo = document.getElementById('trip-memo').value.trim();
+    const badge = document.getElementById('memo-badge');
+    badge.textContent = memo ? t('trip.memoHasContent') : '';
   }
 
   // ── Duration ──
@@ -664,10 +682,17 @@
     });
 
     // Trip editor inputs — auto save
-    ['trip-name', 'trip-destination', 'trip-start-date', 'trip-end-date'].forEach((id) => {
+    ['trip-name', 'trip-destination', 'trip-start-date', 'trip-end-date', 'trip-memo'].forEach((id) => {
       const el = document.getElementById(id);
       el.addEventListener('change', scheduleSave);
     });
+
+    // Memo: also save on input (debounced) and update badge
+    document.getElementById('trip-memo').addEventListener('input', () => {
+      updateMemoBadge();
+      scheduleSave();
+    });
+    document.getElementById('memo-toggle').addEventListener('click', toggleMemo);
 
     // Live date validation
     ['trip-start-date', 'trip-end-date'].forEach((id) => {

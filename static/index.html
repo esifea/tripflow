@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
 </head>
 <body>
     <!-- Navigation -->
@@ -201,6 +201,18 @@
                     <div class="form-error" id="date-error"></div>
                 </div>
 
+                <!-- Trip Memo -->
+                <div class="memo-section" id="memo-section">
+                    <button class="memo-toggle" id="memo-toggle">
+                        <span class="memo-toggle-icon" id="memo-toggle-icon">▶</span>
+                        <span data-i18n="trip.memo">Trip Memo</span>
+                        <span class="memo-badge" id="memo-badge"></span>
+                    </button>
+                    <div class="memo-body" id="memo-body">
+                        <textarea class="input textarea memo-textarea" id="trip-memo" data-i18n-placeholder="trip.memoPlaceholder" placeholder="Booking references, packing lists, general notes..." rows="4"></textarea>
+                    </div>
+                </div>
+
                 <!-- Day Tabs -->
                 <div class="day-tabs-wrapper">
                     <div class="day-tabs" id="day-tabs">
@@ -309,7 +321,7 @@
     <!-- Toast notification -->
     <div class="toast" id="toast"></div>
 
-    <script src="/static/js/i18n.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/i18n.js?v=2"></script>
+    <script src="/static/js/app.js?v=2"></script>
 </body>
 </html>

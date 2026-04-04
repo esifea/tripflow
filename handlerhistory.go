@@ -95,6 +95,7 @@ func handleRecoverHistory(w http.ResponseWriter, r *http.Request, token string, 
 			fieldToCol := map[string]string{
 				"name": "name", "destination": "destination",
 				"start_date": "start_date", "end_date": "end_date",
+				"memo": "memo",
 			}
 			datesChanged := false
 			for field, prevValue := range changedFields {
@@ -125,8 +126,8 @@ func handleRecoverHistory(w http.ResponseWriter, r *http.Request, token string, 
 				return
 			}
 			if _, err = db.Exec(
-				`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-				prevTrip.Name, prevTrip.Destination, prevTrip.StartDate, prevTrip.EndDate, trip.ID,
+				`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, memo=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+				prevTrip.Name, prevTrip.Destination, prevTrip.StartDate, prevTrip.EndDate, prevTrip.Memo, trip.ID,
 			); err != nil {
 				writeError(w, http.StatusInternalServerError, "failed to recover trip")
 				return
