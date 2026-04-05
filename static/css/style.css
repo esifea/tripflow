@@ -838,6 +838,96 @@ a.nav-brand {
   color: var(--accent-3);
 }
 
+/* ── Checklist & Memo shared ── */
+.checklist-section {
+  margin-bottom: 12px;
+}
+
+.checklist-section.open .memo-toggle {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom-color: transparent;
+  color: var(--text-primary);
+}
+
+.checklist-section.open .memo-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.checklist-section.open .memo-body {
+  display: block;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.checklist-item:hover {
+  background: rgba(139,127,234,0.04);
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checklist-item-text {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.checklist-item.checked .checklist-item-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.checklist-item-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: var(--transition-fast);
+}
+
+.checklist-item:hover .checklist-item-delete {
+  opacity: 1;
+}
+
+.checklist-item-delete:hover {
+  color: #d47272;
+}
+
+.checklist-add {
+  display: flex;
+  gap: 8px;
+}
+
+.checklist-input {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+}
+
 /* ── Trip Memo ── */
 .memo-section {
   margin-bottom: 24px;

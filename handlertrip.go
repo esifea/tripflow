@@ -147,8 +147,8 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = db.Exec(
-		`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, memo=?, updated_at=CURRENT_TIMESTAMP WHERE token=?`,
-		req.Name, req.Destination, req.StartDate, req.EndDate, req.Memo, token,
+		`UPDATE trips SET name=?, destination=?, start_date=?, end_date=?, checklist=?, memo=?, updated_at=CURRENT_TIMESTAMP WHERE token=?`,
+		req.Name, req.Destination, req.StartDate, req.EndDate, req.Checklist, req.Memo, token,
 	)
 	if err != nil {
 		log.Printf("Error updating trip: %v", err)
@@ -172,10 +172,15 @@ func handleUpdateTrip(w http.ResponseWriter, r *http.Request) {
 	if req.EndDate != prevTrip.EndDate {
 		changedFields["end_date"] = prevTrip.EndDate
 	}
+	if checklistItemsChanged(prevTrip.Checklist, req.Checklist) {
+		changedFields["checklist"] = prevTrip.Checklist
+	}
 	if req.Memo != prevTrip.Memo {
 		changedFields["memo"] = prevTrip.Memo
 	}
-	logHistory(trip.ID, "update_trip", detail, changedFields)
+	if len(changedFields) > 0 {
+		logHistory(trip.ID, "update_trip", detail, changedFields)
+	}
 	writeJSON(w, http.StatusOK, updated)
 }
 
@@ -247,9 +252,9 @@ func handleTripRouter(w http.ResponseWriter, r *http.Request) {
 func getTripByToken(token string) (Trip, error) {
 	var t Trip
 	err := db.QueryRow(
-		`SELECT id, token, name, destination, start_date, end_date, memo, created_at, updated_at FROM trips WHERE token=?`,
+		`SELECT id, token, name, destination, start_date, end_date, checklist, memo, created_at, updated_at FROM trips WHERE token=?`,
 		token,
-	).Scan(&t.ID, &t.Token, &t.Name, &t.Destination, &t.StartDate, &t.EndDate, &t.Memo, &t.CreatedAt, &t.UpdatedAt)
+	).Scan(&t.ID, &t.Token, &t.Name, &t.Destination, &t.StartDate, &t.EndDate, &t.Checklist, &t.Memo, &t.CreatedAt, &t.UpdatedAt)
 	return t, err
 }
 
@@ -279,6 +284,9 @@ func describeTripChanges(prev Trip, req UpdateTripRequest) string {
 			changes = append(changes, "Set end date to "+req.EndDate)
 		}
 	}
+	if clChanges := describeChecklistChanges(prev.Checklist, req.Checklist); clChanges != "" {
+		changes = append(changes, clChanges)
+	}
 	if req.Memo != prev.Memo {
 		if req.Memo == "" {
 			changes = append(changes, "Cleared memo")
@@ -290,6 +298,76 @@ func describeTripChanges(prev Trip, req UpdateTripRequest) string {
 		return "Updated trip metadata"
 	}
 	return strings.Join(changes, ", ")
+}
+
+type checklistItem struct {
+	Text string `json:"text"`
+}
+
+func parseChecklistTexts(jsonStr string) []string {
+	var items []checklistItem
+	json.Unmarshal([]byte(jsonStr), &items)
+	texts := make([]string, len(items))
+	for i, it := range items {
+		texts[i] = it.Text
+	}
+	return texts
+}
+
+// Returns true if items were added or removed (ignores check state changes)
+func checklistItemsChanged(oldJSON, newJSON string) bool {
+	old := parseChecklistTexts(oldJSON)
+	new_ := parseChecklistTexts(newJSON)
+	if len(old) != len(new_) {
+		return true
+	}
+	for i := range old {
+		if old[i] != new_[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func describeChecklistChanges(oldJSON, newJSON string) string {
+	if !checklistItemsChanged(oldJSON, newJSON) {
+		return ""
+	}
+	oldTexts := parseChecklistTexts(oldJSON)
+	newTexts := parseChecklistTexts(newJSON)
+
+	oldSet := map[string]bool{}
+	for _, t := range oldTexts {
+		oldSet[t] = true
+	}
+	newSet := map[string]bool{}
+	for _, t := range newTexts {
+		newSet[t] = true
+	}
+
+	var added, removed []string
+	for _, t := range newTexts {
+		if !oldSet[t] {
+			added = append(added, t)
+		}
+	}
+	for _, t := range oldTexts {
+		if !newSet[t] {
+			removed = append(removed, t)
+		}
+	}
+
+	var parts []string
+	for _, t := range added {
+		parts = append(parts, "Added checklist item: \""+t+"\"")
+	}
+	for _, t := range removed {
+		parts = append(parts, "Removed checklist item: \""+t+"\"")
+	}
+	if len(parts) == 0 {
+		return "Updated checklist"
+	}
+	return strings.Join(parts, ", ")
 }
 
 func extractToken(path, prefix string) string {

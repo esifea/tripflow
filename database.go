@@ -72,6 +72,7 @@ func runMigrations() error {
 		`ALTER TABLE trips ADD COLUMN destination TEXT DEFAULT ''`,
 		`ALTER TABLE events ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0`,
 		`ALTER TABLE trips ADD COLUMN memo TEXT DEFAULT ''`,
+		`ALTER TABLE trips ADD COLUMN checklist TEXT DEFAULT '[]'`,
 	}
 
 	for _, m := range migrations {

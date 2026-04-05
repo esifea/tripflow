@@ -120,6 +120,7 @@
     document.getElementById('trip-destination').value = currentTrip.destination || '';
     document.getElementById('trip-start-date').value = currentTrip.start_date || '';
     document.getElementById('trip-end-date').value = currentTrip.end_date || '';
+    renderChecklist();
     document.getElementById('trip-memo').value = currentTrip.memo || '';
     updateMemoBadge();
 
@@ -143,6 +144,7 @@
         destination: document.getElementById('trip-destination').value.trim(),
         start_date: document.getElementById('trip-start-date').value,
         end_date: document.getElementById('trip-end-date').value,
+        checklist: JSON.stringify(checklistItems),
         memo: document.getElementById('trip-memo').value,
       });
       currentTrip = updated;
@@ -150,6 +152,70 @@
       renderDayTabs();
     } catch (e) {
       console.error('Failed to save trip:', e);
+    }
+  }
+
+  // ── Checklist ──
+  let checklistItems = [];
+
+  function toggleChecklist() {
+    document.getElementById('checklist-section').classList.toggle('open');
+  }
+
+  function getChecklist() {
+    try {
+      return JSON.parse(currentTrip.checklist || '[]');
+    } catch { return []; }
+  }
+
+  function renderChecklist() {
+    checklistItems = getChecklist();
+    const container = document.getElementById('checklist-items');
+    container.innerHTML = checklistItems.map((item, i) => `
+      <div class="checklist-item${item.checked ? ' checked' : ''}" data-idx="${i}">
+        <input type="checkbox" ${item.checked ? 'checked' : ''} data-idx="${i}">
+        <span class="checklist-item-text">${escapeHtml(item.text)}</span>
+        <button class="checklist-item-delete" data-idx="${i}">✕</button>
+      </div>
+    `).join('');
+
+    // Bind events
+    container.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        checklistItems[parseInt(cb.dataset.idx)].checked = cb.checked;
+        saveChecklist();
+      });
+    });
+    container.querySelectorAll('.checklist-item-delete').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        checklistItems.splice(parseInt(btn.dataset.idx), 1);
+        saveChecklist();
+      });
+    });
+
+    updateChecklistBadge();
+  }
+
+  function addChecklistItem(text) {
+    if (!text.trim()) return;
+    checklistItems.push({ text: text.trim(), checked: false });
+    saveChecklist();
+    document.getElementById('checklist-new').value = '';
+  }
+
+  function saveChecklist() {
+    currentTrip.checklist = JSON.stringify(checklistItems);
+    renderChecklist();
+    scheduleSave();
+  }
+
+  function updateChecklistBadge() {
+    const badge = document.getElementById('checklist-badge');
+    if (checklistItems.length === 0) {
+      badge.textContent = '';
+    } else {
+      const done = checklistItems.filter((i) => i.checked).length;
+      badge.textContent = t('trip.checklistCount', { done, total: checklistItems.length });
     }
   }
 
@@ -827,6 +893,15 @@
       scheduleSave();
     });
     document.getElementById('memo-toggle').addEventListener('click', toggleMemo);
+
+    // Checklist
+    document.getElementById('checklist-toggle').addEventListener('click', toggleChecklist);
+    document.getElementById('checklist-new').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addChecklistItem(e.target.value);
+      }
+    });
 
     // Live date validation
     ['trip-start-date', 'trip-end-date'].forEach((id) => {
