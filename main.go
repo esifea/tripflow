@@ -48,9 +48,9 @@ func main() {
 	mux.HandleFunc("/api/trips", handleTripRouter)
 	mux.HandleFunc("/api/trips/", handleTripRouter)
 
-	// Static files
+	// Static files (no-cache so updates are picked up immediately)
 	staticFS := http.FileServer(http.Dir(staticDir))
-	mux.Handle("/static/", http.StripPrefix("/static/", staticFS))
+	mux.Handle("/static/", noCacheMiddleware(http.StripPrefix("/static/", staticFS)))
 
 	// SPA fallback
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +105,13 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, `{"status":"ok","time":"%s"}`, time.Now().Format(time.RFC3339))
+}
+
+func noCacheMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+		next.ServeHTTP(w, r)
+	})
 }
 
 func logMiddleware(next http.Handler) http.Handler {
