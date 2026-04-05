@@ -336,34 +336,39 @@ func describeChecklistChanges(oldJSON, newJSON string) string {
 	oldTexts := parseChecklistTexts(oldJSON)
 	newTexts := parseChecklistTexts(newJSON)
 
-	oldSet := map[string]bool{}
-	for _, t := range oldTexts {
-		oldSet[t] = true
-	}
-	newSet := map[string]bool{}
-	for _, t := range newTexts {
-		newSet[t] = true
-	}
-
-	var added, removed []string
-	for _, t := range newTexts {
-		if !oldSet[t] {
-			added = append(added, t)
-		}
-	}
-	for _, t := range oldTexts {
-		if !newSet[t] {
-			removed = append(removed, t)
-		}
-	}
-
 	var parts []string
-	for _, t := range added {
-		parts = append(parts, "Added checklist item: \""+t+"\"")
+
+	if len(oldTexts) == len(newTexts) {
+		// Same count: items were edited
+		for i := range oldTexts {
+			if oldTexts[i] != newTexts[i] {
+				parts = append(parts, "Edited checklist: \""+oldTexts[i]+"\" → \""+newTexts[i]+"\"")
+			}
+		}
+	} else if len(newTexts) > len(oldTexts) {
+		// Items added - find which ones are new
+		oldSet := map[string]bool{}
+		for _, t := range oldTexts {
+			oldSet[t] = true
+		}
+		for _, t := range newTexts {
+			if !oldSet[t] {
+				parts = append(parts, "Added checklist item: \""+t+"\"")
+			}
+		}
+	} else {
+		// Items removed - find which ones are gone
+		newSet := map[string]bool{}
+		for _, t := range newTexts {
+			newSet[t] = true
+		}
+		for _, t := range oldTexts {
+			if !newSet[t] {
+				parts = append(parts, "Removed checklist item: \""+t+"\"")
+			}
+		}
 	}
-	for _, t := range removed {
-		parts = append(parts, "Removed checklist item: \""+t+"\"")
-	}
+
 	if len(parts) == 0 {
 		return "Updated checklist"
 	}

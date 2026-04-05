@@ -174,8 +174,9 @@
     container.innerHTML = checklistItems.map((item, i) => `
       <div class="checklist-item${item.checked ? ' checked' : ''}" data-idx="${i}">
         <input type="checkbox" ${item.checked ? 'checked' : ''} data-idx="${i}">
-        <span class="checklist-item-text">${escapeHtml(item.text)}</span>
-        <button class="checklist-item-delete" data-idx="${i}">✕</button>
+        <span class="checklist-item-text" data-idx="${i}">${escapeHtml(item.text)}</span>
+        <button class="checklist-item-edit" data-idx="${i}" title="Edit">✏️</button>
+        <button class="checklist-item-delete" data-idx="${i}" title="Delete">✕</button>
       </div>
     `).join('');
 
@@ -186,6 +187,9 @@
         saveChecklist();
       });
     });
+    container.querySelectorAll('.checklist-item-edit').forEach((btn) => {
+      btn.addEventListener('click', () => editChecklistItem(parseInt(btn.dataset.idx)));
+    });
     container.querySelectorAll('.checklist-item-delete').forEach((btn) => {
       btn.addEventListener('click', () => {
         checklistItems.splice(parseInt(btn.dataset.idx), 1);
@@ -194,6 +198,41 @@
     });
 
     updateChecklistBadge();
+  }
+
+  function editChecklistItem(idx) {
+    const container = document.getElementById('checklist-items');
+    const itemEl = container.querySelector(`.checklist-item[data-idx="${idx}"]`);
+    const textEl = itemEl.querySelector('.checklist-item-text');
+    const editBtn = itemEl.querySelector('.checklist-item-edit');
+    const deleteBtn = itemEl.querySelector('.checklist-item-delete');
+
+    // Replace text span with input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'input checklist-edit-input';
+    input.value = checklistItems[idx].text;
+    textEl.replaceWith(input);
+    editBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+    input.focus();
+    input.select();
+
+    function finishEdit() {
+      const newText = input.value.trim();
+      if (newText && newText !== checklistItems[idx].text) {
+        checklistItems[idx].text = newText;
+        saveChecklist();
+      } else {
+        renderChecklist();
+      }
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finishEdit(); }
+      if (e.key === 'Escape') { renderChecklist(); }
+    });
+    input.addEventListener('blur', finishEdit);
   }
 
   function addChecklistItem(text) {
@@ -673,6 +712,34 @@
     document.getElementById('history-modal').style.display = 'none';
   }
 
+  function translateDetail(detail) {
+    if (!detail) return '';
+    // Split comma-separated parts and translate each
+    return detail.split(', ').map(part => {
+      // Match patterns from backend and map to i18n keys
+      let m;
+      if (part === 'Created new trip') return t('historyModal.details.createdNewTrip');
+      if (part === 'Updated trip metadata') return t('historyModal.details.updatedTripMetadata');
+      if (part === 'Updated memo') return t('historyModal.details.updatedMemo');
+      if (part === 'Cleared memo') return t('historyModal.details.clearedMemo');
+      if (part === 'Cleared destination') return t('historyModal.details.clearedDestination');
+      if (part === 'Cleared start date') return t('historyModal.details.clearedStartDate');
+      if (part === 'Cleared end date') return t('historyModal.details.clearedEndDate');
+      if (part === 'Updated checklist') return t('historyModal.details.updatedChecklist');
+      if ((m = part.match(/^Renamed to "(.+)"$/))) return t('historyModal.details.renamedTo', { name: m[1] });
+      if ((m = part.match(/^Set destination to (.+)$/))) return t('historyModal.details.setDestination', { value: m[1] });
+      if ((m = part.match(/^Set start date to (.+)$/))) return t('historyModal.details.setStartDate', { value: m[1] });
+      if ((m = part.match(/^Set end date to (.+)$/))) return t('historyModal.details.setEndDate', { value: m[1] });
+      if ((m = part.match(/^Added checklist item: "(.+)"$/))) return t('historyModal.details.addedChecklistItem', { item: m[1] });
+      if ((m = part.match(/^Removed checklist item: "(.+)"$/))) return t('historyModal.details.removedChecklistItem', { item: m[1] });
+      if ((m = part.match(/^Edited checklist: "(.+)" → "(.+)"$/))) return t('historyModal.details.editedChecklist', { from: m[1], to: m[2] });
+      if ((m = part.match(/^Added event: (.+)$/))) return t('historyModal.details.addedEvent', { name: m[1] });
+      if ((m = part.match(/^Updated event: (.+)$/))) return t('historyModal.details.updatedEvent', { name: m[1] });
+      if ((m = part.match(/^Deleted event ID: (\d+)$/))) return t('historyModal.details.deletedEvent', { id: m[1] });
+      return part; // fallback: show raw text
+    }).join(', ');
+  }
+
   function renderHistory(logs) {
     const list = document.getElementById('history-list');
     if (logs.length === 0) {
@@ -693,7 +760,7 @@
             <span class="history-action">${displayAction}</span>
             <span class="history-time">${time}</span>
           </div>
-          <div class="history-detail">${escapeHtml(log.detail)}</div>
+          <div class="history-detail">${escapeHtml(translateDetail(log.detail))}</div>
           ${canRecover ? `<button class="history-recover-btn" data-id="${log.id}">${t('historyModal.recover')}</button>` : ''}
         </div>
       `;
