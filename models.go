@@ -75,6 +75,11 @@ type ReorderRequest struct {
 	EventIDs []int64 `json:"event_ids"`
 }
 
+type SwapDaysRequest struct {
+	DayA int `json:"day_a"`
+	DayB int `json:"day_b"`
+}
+
 type History struct {
 	ID        int64     `json:"id"`
 	TripID    int64     `json:"trip_id"`

@@ -1088,6 +1088,24 @@ a.nav-brand {
   justify-content: center;
 }
 
+.day-tab-dragging {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.day-tab-drop-target {
+  border-color: var(--accent-4);
+  background: rgba(6, 182, 212, 0.15);
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+}
+
+.day-tab {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* ── Events Container ── */
 .events-container {
   min-height: 200px;

@@ -330,6 +330,8 @@
     }
     container.innerHTML = html;
 
+    let dayDragSrc = null;
+
     container.querySelectorAll('.day-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
         currentDay = parseInt(tab.dataset.day);
@@ -338,7 +340,143 @@
         window.history.replaceState(null, '', '#day' + currentDay);
         renderEvents();
       });
+
+      // Suppress context menu on long-press
+      tab.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      // Day tab drag-and-drop for swapping schedules
+      tab.draggable = true;
+
+      tab.addEventListener('dragstart', (e) => {
+        dayDragSrc = tab;
+        tab.classList.add('day-tab-dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', tab.dataset.day);
+      });
+
+      tab.addEventListener('dragover', (e) => {
+        if (!dayDragSrc || dayDragSrc === tab) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        tab.classList.add('day-tab-drop-target');
+      });
+
+      tab.addEventListener('dragleave', () => {
+        tab.classList.remove('day-tab-drop-target');
+      });
+
+      tab.addEventListener('drop', (e) => {
+        e.preventDefault();
+        tab.classList.remove('day-tab-drop-target');
+        if (!dayDragSrc || dayDragSrc === tab) return;
+        const dayA = parseInt(dayDragSrc.dataset.day);
+        const dayB = parseInt(tab.dataset.day);
+        swapDaySchedules(dayA, dayB);
+      });
+
+      tab.addEventListener('dragend', () => {
+        tab.classList.remove('day-tab-dragging');
+        container.querySelectorAll('.day-tab').forEach((t) => t.classList.remove('day-tab-drop-target'));
+        dayDragSrc = null;
+      });
+
+      // Touch support: long-press (1s) to initiate drag
+      let longPressTimer = null;
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      tab.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        longPressTimer = setTimeout(() => {
+          longPressTimer = null;
+          dayDragSrcGlobal = tab;
+          tab.classList.add('day-tab-dragging');
+          if (navigator.vibrate) navigator.vibrate(30);
+        }, 1000);
+      }, { passive: true });
+
+      tab.addEventListener('touchmove', (e) => {
+        // If long-press hasn't fired yet, cancel only if finger moved > 10px
+        if (longPressTimer) {
+          const touch = e.touches[0];
+          const dx = Math.abs(touch.clientX - touchStartX);
+          const dy = Math.abs(touch.clientY - touchStartY);
+          if (dx > 10 || dy > 10) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+        }
+      }, { passive: true });
+
+      tab.addEventListener('touchend', (e) => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        // If long-press activated drag on this tab, prevent the synthetic click
+        if (dayDragSrcGlobal === tab) {
+          e.preventDefault();
+        }
+      }, { passive: false });
     });
+
+    // Global touch handlers for day-tab drag (bound once via flag on wrapper)
+    const wrapper = container.closest('.day-tabs-wrapper') || container;
+    if (!wrapper.dataset.dayDragBound) {
+      wrapper.dataset.dayDragBound = '1';
+
+      document.addEventListener('touchmove', (e) => {
+        if (!dayDragSrcGlobal) return;
+        // Block scroll only when actively dragging a day tab
+        e.preventDefault();
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const tab = target && target.closest('.day-tab');
+        const cont = document.getElementById('day-tabs');
+        if (cont) cont.querySelectorAll('.day-tab').forEach((t) => t.classList.remove('day-tab-drop-target'));
+        if (tab && tab !== dayDragSrcGlobal) {
+          tab.classList.add('day-tab-drop-target');
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchend', () => {
+        if (!dayDragSrcGlobal) return;
+        const cont = document.getElementById('day-tabs');
+        const dropTarget = cont && cont.querySelector('.day-tab-drop-target');
+        if (dropTarget && dayDragSrcGlobal !== dropTarget) {
+          const dayA = parseInt(dayDragSrcGlobal.dataset.day);
+          const dayB = parseInt(dropTarget.dataset.day);
+          swapDaySchedules(dayA, dayB);
+        }
+        dayDragSrcGlobal.classList.remove('day-tab-dragging');
+        if (cont) cont.querySelectorAll('.day-tab').forEach((t) => t.classList.remove('day-tab-drop-target'));
+        dayDragSrcGlobal = null;
+      });
+    }
+  }
+
+  let dayDragSrcGlobal = null;
+
+  async function swapDaySchedules(dayA, dayB) {
+    try {
+      await api('PUT', `/api/trips/${currentTrip.token}/events/swap-days`, { day_a: dayA, day_b: dayB });
+      // Update local state
+      currentEvents.forEach((ev) => {
+        if (ev.day_number === dayA) ev.day_number = -1;
+      });
+      currentEvents.forEach((ev) => {
+        if (ev.day_number === dayB) ev.day_number = dayA;
+      });
+      currentEvents.forEach((ev) => {
+        if (ev.day_number === -1) ev.day_number = dayB;
+      });
+      renderDayTabs();
+      renderEvents();
+    } catch (e) {
+      console.error('Failed to swap days:', e);
+    }
   }
 
   // ── Render events ──
@@ -736,6 +874,7 @@
       if ((m = part.match(/^Added event: (.+)$/))) return t('historyModal.details.addedEvent', { name: m[1] });
       if ((m = part.match(/^Updated event: (.+)$/))) return t('historyModal.details.updatedEvent', { name: m[1] });
       if ((m = part.match(/^Deleted event ID: (\d+)$/))) return t('historyModal.details.deletedEvent', { id: m[1] });
+      if ((m = part.match(/^Swapped schedule: Day (\d+) ↔ Day (\d+)$/))) return t('historyModal.details.swappedDays', { a: m[1], b: m[2] });
       return part; // fallback: show raw text
     }).join(', ');
   }

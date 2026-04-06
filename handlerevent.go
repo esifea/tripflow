@@ -36,6 +36,12 @@ func handleEventRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /api/trips/{token}/events/swap-days
+	if strings.HasSuffix(path, "/swap-days") {
+		handleSwapDays(w, r, token)
+		return
+	}
+
 	// /api/trips/{token}/events/{id}
 	eventIDStr := strings.TrimPrefix(path, eventsPath+"/")
 	eventID, err := strconv.ParseInt(eventIDStr, 10, 64)
@@ -251,6 +257,62 @@ func handleReorderEvents(w http.ResponseWriter, r *http.Request, token string) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"status": "reordered"})
+}
+
+func handleSwapDays(w http.ResponseWriter, r *http.Request, token string) {
+	if r.Method != http.MethodPut {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	trip, err := getTripByToken(token)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "trip not found")
+		return
+	}
+
+	var req SwapDaysRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.DayA == req.DayB || req.DayA < 1 || req.DayB < 1 {
+		writeError(w, http.StatusBadRequest, "invalid day numbers")
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to start transaction")
+		return
+	}
+
+	// Use a temporary day_number (-1) to avoid unique constraint issues
+	if _, err := tx.Exec(`UPDATE events SET day_number=-1 WHERE trip_id=? AND day_number=?`, trip.ID, req.DayA); err != nil {
+		tx.Rollback()
+		writeError(w, http.StatusInternalServerError, "failed to swap days")
+		return
+	}
+	if _, err := tx.Exec(`UPDATE events SET day_number=? WHERE trip_id=? AND day_number=?`, req.DayA, trip.ID, req.DayB); err != nil {
+		tx.Rollback()
+		writeError(w, http.StatusInternalServerError, "failed to swap days")
+		return
+	}
+	if _, err := tx.Exec(`UPDATE events SET day_number=? WHERE trip_id=? AND day_number=-1`, req.DayB, trip.ID); err != nil {
+		tx.Rollback()
+		writeError(w, http.StatusInternalServerError, "failed to swap days")
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("Error committing day swap: %v", err)
+		writeError(w, http.StatusInternalServerError, "failed to commit swap")
+		return
+	}
+
+	logHistory(trip.ID, "update_trip", fmt.Sprintf("Swapped schedule: Day %d ↔ Day %d", req.DayA, req.DayB), nil)
+	writeJSON(w, http.StatusOK, map[string]string{"status": "swapped"})
 }
 
 //--- DB helpers ---//
