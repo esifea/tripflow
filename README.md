@@ -45,10 +45,12 @@ All configuration is via environment variables:
 Example:
 
 ```sh
-PORT=3000 DB_PATH=/data/tripflow.db ./tripflow
+PORT=18080 DB_PATH=/data/tripflow.db ./tripflow
 ```
 
 ## Docker Deployment
+
+- Docker environment use `PORT=18080` as default
 
 Build and run with Docker (e.g., on a NAS):
 
