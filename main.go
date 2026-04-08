@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -40,6 +41,18 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer closeDB()
+
+	// Background cleanup of unused trips. Disabled by default
+	// Set CLEANUP_DAYS to a positive integer (e.g. 30) to enable
+	cleanupDays := 0
+	if v := os.Getenv("CLEANUP_DAYS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cleanupDays = n
+		} else {
+			log.Printf("[WARN] invalid CLEANUP_DAYS=%q, cleanup disabled", v)
+		}
+	}
+	startCleanupWorker(cleanupDays)
 
 	mux := http.NewServeMux()
 

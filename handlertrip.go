@@ -102,6 +102,11 @@ func handleGetTrip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Touch 'last_accessed_at' so the cleanup goroutine knows this trip is alive
+	if _, err := db.Exec(`UPDATE trips SET last_accessed_at=CURRENT_TIMESTAMP WHERE id=?`, trip.ID); err != nil {
+		log.Printf("[WARN] Failed to update last_accessed_at: %v", err)
+	}
+
 	events, err := getEventsByTripID(trip.ID)
 	if err != nil {
 		log.Printf("Error fetching events: %v", err)
